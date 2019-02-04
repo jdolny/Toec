@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:iis="http://schemas.microsoft.com/wix/IIsExtension"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension"
+     xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
+
+  <?define Version = "1.0.0.0" ?>
+  <?define DisplayVersion = "1.0.0" ?>
+  <?if $(sys.BUILDARCH)=x64?>
+  <?define Win64 = "yes" ?>
+  <?define msiProductId = "4df95de6-02f2-48ae-9354-d312d2458d60" ?>
+  <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
+  <?define serviceSourcePath = "..\Toec\bin\x64\Release\" ?>
+  <?define traySourcePath = "..\Toec-UI\bin\x64\Release\" ?>
+  <?define helperSourcePath = "..\Toec-InstallHelper\bin\x64\Release\" ?>
+  <?else ?>
+  <?define Win64 = "no" ?>
+  <?define msiProductId = "a32457e5-7b3d-4319-bf1b-7683c1677537" ?>
+  <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
+  <?define serviceSourcePath = "..\Toec\bin\x86\Release\" ?>
+  <?define traySourcePath = "..\Toec-UI\bin\x86\Release\" ?>
+  <?define helperSourcePath = "..\Toec-InstallHelper\bin\x86\Release\" ?>
+  <?endif ?>
+
+  <Product Id="*" Name="Toec $(var.Version) $(sys.BUILDARCH)" Language="1033" Version="$(var.Version)"
+           Manufacturer="Magaeric Solutions LLC" UpgradeCode="47573ddd-b162-4adc-95d3-81c648b01262">
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" InstallPrivileges="elevated"  />
+    <util:CloseApplication Id="CloseToec" Target="Toec.exe" CloseMessage="no" RebootPrompt="no"
+                           TerminateProcess="0">
+    </util:CloseApplication>
+    <util:CloseApplication Id="CloseToecUI" Target="Toec-UI.exe" CloseMessage="no"
+                           RebootPrompt="no" TerminateProcess="0">
+    </util:CloseApplication>
+    <Property Id="MSIUSEREALADMINDETECTION" Value="1" />
+
+    <Condition Message="You Must Run With Elevated Privileges.">
+      Privileged
+    </Condition>
+    <PropertyRef Id="WIX_IS_NETFRAMEWORK_46_OR_LATER_INSTALLED" />
+    <Condition
+      Message="This application requires .NET Framework 4.6. Please install the .NET Framework then run this installer again.">
+      <![CDATA[Installed OR WIX_IS_NETFRAMEWORK_46_OR_LATER_INSTALLED]]>
+    </Condition>
+
+    <!--These Conditions Probably Won't Be Hit, Windows Should Stop The Installer Before It Gets Here For Architecture Mismatch-->
+    <?if $(var.Platform) = x64 ?>
+    <Condition Message="You Must Use The 32-bit Installer For This System.">
+      <![CDATA[VersionNT64]]>
+    </Condition>
+    <?endif?>
+    <?if $(var.Platform) = x86 ?>
+    <Condition Message="You Must Use The 64-bit Installer For This System.">
+      <![CDATA[NOT VersionNT64]]>
+    </Condition>
+    <?endif?>
+
+    <MajorUpgrade DowngradeErrorMessage="A Newer Version Of Toec Is Already Installed."
+                  AllowSameVersionUpgrades="yes" />
+    <MediaTemplate EmbedCab="yes" />
+
+
+    <Property Id="COM_SERVERS" Hidden="yes" />
+    <Property Id="LOCAL_API_PORT" Hidden="yes" />
+    <Property Id="REMOTE_API_PORT" Hidden="yes" />
+    <Property Id="SERVER_KEY" Hidden="yes" />
+    <Property Id="CA_THUMBPRINT" Hidden="yes" />
+    <Property Id="USER_PORT_RANGE" Hidden="yes" />
+    <Property Id="RESET_DB" Hidden="yes" />
+    <Property Id="SKIP_FIREWALL" Hidden="yes" />
+    <Property Id="REMOTE_ADDRESSES" Hidden="yes" />
+    <Property Id="LOG_LEVEL" Hidden="yes" />
+
+    <Binary Id="InstallHelper" SourceFile="$(var.helperSourcePath)Toec-InstallHelper.CA.dll" />
+    <CustomAction Id="InitializeDb_Data" Property="InitializeDb"
+                  Value="COM_SERVERS=[COM_SERVERS];LOCAL_API_PORT=[LOCAL_API_PORT];REMOTE_API_PORT=[REMOTE_API_PORT];SERVER_KEY=[SERVER_KEY];CA_THUMBPRINT=[CA_THUMBPRINT];USER_PORT_RANGE=[USER_PORT_RANGE];RESET_DB=[RESET_DB];CLIENT_VERSION=$(var.Version);LOG_LEVEL=[LOG_LEVEL];"
+                  HideTarget="yes">
+    </CustomAction>
+    <CustomAction Id="InitializeDb" BinaryKey="InstallHelper" DllEntry="InitializeDatabase" Return="check"
+                  Execute="deferred">
+    </CustomAction>
+
+    <CustomAction Id="FirewallException_Data" Property="FirewallException"
+                  Value="REMOTE_API_PORT=[REMOTE_API_PORT];SKIP_FIREWALL=[SKIP_FIREWALL];REMOTE_ADDRESSES=[REMOTE_ADDRESSES];"
+                  HideTarget="yes">
+    </CustomAction>
+    <CustomAction Id="FirewallException" BinaryKey="InstallHelper" DllEntry="CreateFirewallException" Return="check"
+                  Execute="deferred">
+    </CustomAction>
+
+
+    <InstallExecuteSequence>
+      <Custom Action="WixCloseApplications" Before="InstallFiles"></Custom>
+      <Custom Action="InitializeDb_Data" After="InstallFiles">NOT (REMOVE="ALL")</Custom>
+      <Custom Action="InitializeDb" After="InitializeDb_Data">NOT (REMOVE="ALL")</Custom>
+      <Custom Action="FirewallException_Data" After="InitializeDb">NOT (REMOVE="ALL")</Custom>
+      <Custom Action="FirewallException" After="FirewallException_Data">NOT (REMOVE="ALL")</Custom>
+    </InstallExecuteSequence>
+    <Feature Id="ProductFeature" Title="Toec" Level="1">
+
+      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentGroupRef Id="ShortcutComponents" />
+    </Feature>
+    <Icon Id="icon.ico" SourceFile="extra_files\blue32.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+  </Product>
+
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="$(var.PlatformProgramFilesFolder)">
+        <Directory Id="INSTALLFOLDER" Name="Toec" />
+      </Directory>
+
+
+      <Directory Id="StartupFolder" Name="Startup">
+      </Directory>
+
+
+    </Directory>
+  </Fragment>
+
+  <Fragment>
+
+    <ComponentGroup Id="ShortcutComponents" Directory="StartupFolder">
+
+      <Component Id="TrayShortcutComponent" Guid="4e345f57-9928-4a81-887c-1f0fd08e5855">
+        <CreateFolder />
+        <Shortcut Id="TrayShortcut" Name="ToecUI"
+                  Target="[INSTALLFOLDER]Toec-UI.exe" WorkingDirectory="INSTALLFOLDER" />
+        <RegistryValue Root="HKCU"
+                       Key="Software\Toec" Name="Fake" Type="integer" Value="1" KeyPath="yes" />
+
+      </Component>
+    </ComponentGroup>
+
+
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Component Id="INSTALLDIR_comp" Guid="ff9b0258-2f43-410d-9782-9f9011dee0e0">
+        <CreateFolder />
+      </Component>
+
+      <Component Id="ServiceComponent" Guid="*">
+        <File Source="$(var.serviceSourcePath)Toec.exe" Id="Toec" Name="Toec.exe"
+              KeyPath="yes" />
+        <ServiceInstall Id="ServiceInstaller" Account="LocalSystem" Description="Toec Service"
+                        DisplayName="Toec" ErrorControl="normal"
+                        LoadOrderGroup="NetworkProvider" Name="Toec" Start="auto" Type="ownProcess"
+                        Vital="yes" />
+        <ServiceControl Id="ServiceControl" Name="Toec" Start="install" Stop="both" Remove="uninstall"
+                        Wait="yes" />
+      </Component>
+
+      <Component Id="ToecConfig" Guid="26382962-4d5a-4376-9787-4dcd8347d273">
+        <File Source="$(var.serviceSourcePath)Toec.exe.config" Id="ToecConfig"
+              Name="Toec.exe.config" KeyPath="yes" />
+      </Component>
+
+      <Component Id="ToecCommon" Guid="314d7f38-6bce-4ab2-a6f0-2c7b768623e5">
+        <File Source="$(var.serviceSourcePath)Toec-Common.dll" Id="ToecCommon"
+              Name="Toec-Common.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="ToecDataModel" Guid="c9d328a6-498c-4cda-853f-9631571a6eca">
+        <File Source="$(var.serviceSourcePath)Toec-DataModel.dll" Id="ToecDataModel"
+              Name="Toec-DataModel.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="ToecLocalApi" Guid="a639b16a-eca6-4f50-bf4a-464bc988d0f0">
+        <File Source="$(var.serviceSourcePath)Toec-LocalApi.dll" Id="ToecLocalApi"
+              Name="Toec-LocalApi.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="ToecRemoteApi" Guid="b38601a9-839b-41b6-b33d-ddb98f7e87e6">
+        <File Source="$(var.serviceSourcePath)Toec-RemoteApi.dll" Id="ToecRemoteApi"
+              Name="Toec-RemoteApi.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="ToecServices" Guid="c0fc971b-b318-4325-849e-ed5d090e7d6f">
+        <File Source="$(var.serviceSourcePath)Toec-Services.dll" Id="ToecServices"
+              Name="Toec-Services.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="EntityFramework" Guid="92928189-1332-48da-92c6-74cc03484853">
+        <File Source="$(var.serviceSourcePath)EntityFramework.dll" Id="EntityFramework" Name="EntityFramework.dll"
+              KeyPath="yes" />
+      </Component>
+
+      <Component Id="TaskScheduler" Guid="457fab9d-c83a-4c3d-97b6-d06e326a5c6b">
+        <File Source="$(var.serviceSourcePath)Microsoft.Win32.TaskScheduler.dll" Id="TaskScheduler" Name="Microsoft.Win32.TaskScheduler.dll"
+              KeyPath="yes" />
+      </Component>
+
+      <Component Id="EntityFrameworkSql" Guid="38dde603-99ab-46c7-928a-3278cba4966f">
+        <File Source="$(var.serviceSourcePath)EntityFramework.SqlServer.dll" Id="EntityFrameworkSql"
+              Name="EntityFramework.SqlServer.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="Log4Net" Guid="a9a1f5a1-5824-4f46-a45f-43c08c673a2c">
+        <File Source="$(var.serviceSourcePath)log4net.dll" Id="Log4Net" Name="log4net.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="MicrosoftOwin" Guid="b4ecbbef-41dc-4319-99ad-7d20dbd67636">
+        <File Source="$(var.serviceSourcePath)Microsoft.Owin.dll" Id="MicrosoftOwin" Name="Microsoft.Owin.dll"
+              KeyPath="yes" />
+      </Component>
+
+      <Component Id="MicrosoftOwinHost" Guid="*">
+        <File Source="$(var.serviceSourcePath)Microsoft.Owin.Host.HttpListener.dll" Id="MicrosoftOwinHost"
+              Name="Microsoft.Owin.Host.HttpListener.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="MicrosoftOwinHosting" Guid="*">
+        <File Source="$(var.serviceSourcePath)Microsoft.Owin.Hosting.dll" Id="MicrosoftOwinHosting"
+              Name="Microsoft.Owin.Hosting.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="Newtonsoft" Guid="*">
+        <File Source="$(var.serviceSourcePath)Newtonsoft.Json.dll" Id="Newtonsoft" Name="Newtonsoft.Json.dll"
+              KeyPath="yes" />
+      </Component>
+
+      <Component Id="Owin" Guid="*">
+        <File Source="$(var.serviceSourcePath)Owin.dll" Id="Owin" Name="Owin.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="RestSharp" Guid="*">
+        <File Source="$(var.serviceSourcePath)RestSharp.dll" Id="RestSharp" Name="RestSharp.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="SystemDataSql" Guid="*">
+        <File Source="$(var.serviceSourcePath)System.Data.SQLite.dll" Id="SystemDataSql" Name="System.Data.SQLite.dll"
+              KeyPath="yes" />
+      </Component>
+
+      <Component Id="SystemDataSqlEF" Guid="*">
+        <File Source="$(var.serviceSourcePath)System.Data.SQLite.EF6.dll" Id="SystemDataSqlEF"
+              Name="System.Data.SQLite.EF6.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="NetHttpFormatting" Guid="*">
+        <File Source="$(var.serviceSourcePath)System.Net.Http.Formatting.dll" Id="NetHttpFormatting"
+              Name="System.Net.Http.Formatting.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="WebHttp" Guid="*">
+        <File Source="$(var.serviceSourcePath)System.Web.Http.dll" Id="WebHttp" Name="System.Web.Http.dll"
+              KeyPath="yes" />
+      </Component>
+
+      <Component Id="WebHttpOwin" Guid="*">
+        <File Source="$(var.serviceSourcePath)System.Web.Http.Owin.dll" Id="WebHttpOwin"
+              Name="System.Web.Http.Owin.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="SQLiteInterop" Guid="*">
+        <File Source="$(var.serviceSourcePath)$(sys.BUILDARCH)\SQLite.Interop.dll" Id="SQLiteInterop"
+              Name="SQLite.Interop.dll" KeyPath="yes" />
+      </Component>
+
+      <Component Id="Database" Guid="*">
+        <File Source="extra_files\DBshell.db" Id="Database" Name="DBshell.db" KeyPath="yes" />
+      </Component>
+
+      <Component Id="TrayConfigComponent" Guid="*">
+        <File Source="$(var.traySourcePath)Toec-UI.exe" Id="ToecUI" Name="Toec-UI.exe"
+              KeyPath="yes" />
+      </Component>
+
+      <Component Id="ToecTrayConfig" Guid="*">
+        <File Source="$(var.traySourcePath)Toec-UI.exe.config" Id="ToecTrayConfig"
+              Name="Toec-UI.exe.config" KeyPath="yes" />
+      </Component>
+
+
+      <Component Id="CertificateComponent" Guid="1d150b52-8bec-4570-8dba-ed60d446dbba" KeyPath="yes">
+       
+        <iis:Certificate Id="Certificate.RootCA"
+                         Name="ToemsCA"
+                         Request="no"
+                         StoreLocation="localMachine"
+                         StoreName="root"
+                         Overwrite="yes"
+                         BinaryKey="ToemsCA.Binary" />
+
+      </Component>
+    </ComponentGroup>
+
+    <Binary Id="ToemsCA.Binary" SourceFile="extra_files\CA-placeholder.cer"  />
+  </Fragment>
+
+</Wix>
