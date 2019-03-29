@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using log4net;
+using Microsoft.AspNet.SignalR.Client;
 using Toec_Common.Dto;
 using Toec_Services.ApiCall;
 using Toec_Services.Entity;
@@ -108,7 +109,35 @@ namespace Toec_Services
             }
 
             Logger.Debug("Com Server Set To: " + DtoGobalSettings.ComServer);
+            ConnectWebSocket();
             return true;
+        }
+
+        private void ConnectWebSocket()
+        {
+            Logger.Debug("Establishing Connection To Com Server Web Socket.");
+            var hubQueryStringData = new Dictionary<string, string>();
+            hubQueryStringData.Add("computerGuid", DtoGobalSettings.ClientIdentity.Guid);
+            var hubConnection = new HubConnection(DtoGobalSettings.ComServer,hubQueryStringData);
+            var hubProxy = hubConnection.CreateHubProxy("ActionHub");
+            hubProxy.On<DtoHubAction>("ClientAction", hubAction => new ServiceHubAction().Process(hubAction));
+            hubConnection.Start().ContinueWith(task =>
+            {
+                if (task.IsFaulted)
+                {
+                    Console.WriteLine("There was an error opening the connection:{0}",
+                                      task.Exception.GetBaseException());
+
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine("Connected to Server.The ConnectionID is:" + hubConnection.ConnectionId);
+
+                }
+
+            });
+
         }
 
         private bool TestConnectionForActive()
