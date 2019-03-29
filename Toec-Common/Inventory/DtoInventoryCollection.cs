@@ -17,6 +17,7 @@ namespace Toec_Common.Inventory
             Firewall = new DtoFirewallInventory();
             Bitlocker = new List<DtoBitlockerInventory>();
             LogicalVolume = new List<DtoLogicalVolumeInventory>();
+            Certificates = new List<DtoCertificateInventory>();
             PushUrl = string.Format("http://{0}{1}:{2}/", DtoGobalSettings.ClientIdentity.Name, DtoGobalSettings.Domain,
                 DtoGobalSettings.RemoteApiPort);
         }
@@ -36,5 +37,6 @@ namespace Toec_Common.Inventory
         public DtoFirewallInventory Firewall { get; set; }
         public List<DtoBitlockerInventory> Bitlocker { get; set; }
         public List<DtoLogicalVolumeInventory> LogicalVolume { get; set; } 
+        public List<DtoCertificateInventory> Certificates { get; set; }
     }
 }

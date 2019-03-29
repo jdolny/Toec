@@ -42,7 +42,7 @@ namespace Toec_Services
         public static bool DeleteIntermediate()
         {
             Logger.Debug("Deleting Intermediate Certificate");
-            var store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
+            var store = new X509Store(StoreName.CertificateAuthority, StoreLocation.LocalMachine);
             try
             {
                 store.Open(OpenFlags.ReadWrite);

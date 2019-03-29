@@ -58,6 +58,7 @@
     <Compile Include="Inventory\DtoInstallUpdatesWmi.cs" />
     <Compile Include="Inventory\DtoAntiVirusWmi.cs" />
     <Compile Include="Inventory\DtoAntiVirusInventory.cs" />
+    <Compile Include="Inventory\DtoCertificateInventory.cs" />
     <Compile Include="Inventory\DtoOsInventory.cs" />
     <Compile Include="Modules\DtoClientCommandModule.cs" />
     <Compile Include="Modules\DtoClientFileCopyModule.cs" />

@@ -87,6 +87,7 @@
     <Compile Include="InventorySearchers\Bios.cs" />
     <Compile Include="InventorySearchers\ComputerSystem.cs" />
     <Compile Include="InventorySearchers\Bitlocker.cs" />
+    <Compile Include="InventorySearchers\Certificate.cs" />
     <Compile Include="InventorySearchers\LogicalVolume.cs" />
     <Compile Include="InventorySearchers\Nic.cs" />
     <Compile Include="InventorySearchers\HardDrive.cs" />
