@@ -3,10 +3,12 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Timers;
 using log4net;
+using Microsoft.AspNet.SignalR.Client;
 using Toec_Common.Dto;
 using Toec_Common.Enum;
 using Toec_Services.ApiCall;
 using Toec_Services.Policy;
+using Toec_Services.Socket;
 
 namespace Toec_Services
 {
@@ -16,6 +18,12 @@ namespace Toec_Services
         private static readonly ILog Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private Timer _checkinTimer;
         private Timer _startupRetryTime;
+        private HubConnection _hubConnection;
+        private ServiceSocket _serviceSocket;
+        public ServiceTriggerAction()
+        {
+            _serviceSocket = new ServiceSocket(_hubConnection);
+        }
 
         public void Checkin()
         {
@@ -63,6 +71,7 @@ namespace Toec_Services
 
             Logger.Info("Checking For Checkin Policies");
             new ServiceActiveComServer().Set();
+            _hubConnection = _serviceSocket.ConnectSocket();
             new PolicyRunner(EnumPolicy.Trigger.Checkin).Run();
             if (Convert.ToInt32(_checkinTimer.Interval) != DtoGobalSettings.CheckinTime*MillisecondsPerMinute)
             {
@@ -76,10 +85,12 @@ namespace Toec_Services
 
         public void Startup()
         {
+            _hubConnection = _serviceSocket.ConnectSocket();
             Logger.Info("Checking For Startup Policies");
             var result = new PolicyRunner(EnumPolicy.Trigger.Startup).Run();
             if (result)
             {
+               
                 Logger.Info(string.Format("Check In Time Set To {0}", DtoGobalSettings.CheckinTime));
                 _checkinTimer = new Timer(DtoGobalSettings.CheckinTime*MillisecondsPerMinute);
                 _checkinTimer.Elapsed += RecurringCheckin;
@@ -100,6 +111,7 @@ namespace Toec_Services
         private void StartupRetry(object source, ElapsedEventArgs e)
         {
             new ServiceActiveComServer().Set();
+            _hubConnection = _serviceSocket.ConnectSocket();
             var result = new PolicyRunner(EnumPolicy.Trigger.Startup).Run();
             if (result)
             {
@@ -117,7 +129,6 @@ namespace Toec_Services
             }
         }
 
-
         private bool disposed;
 
         public void Dispose()
@@ -134,6 +145,7 @@ namespace Toec_Services
                 {
                     _checkinTimer.Dispose();
                     _startupRetryTime.Dispose();
+                    _hubConnection.Dispose();
                 }
             }
             this.disposed = true;

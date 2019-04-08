@@ -17,6 +17,7 @@ namespace Toec_Services
         private readonly ServiceSetting _serviceSetting;
         private List<string> _comServers;
 
+
         public ServiceActiveComServer()
         {
             _comServers = new List<string>();
@@ -109,36 +110,10 @@ namespace Toec_Services
             }
 
             Logger.Debug("Com Server Set To: " + DtoGobalSettings.ComServer);
-            ConnectWebSocket();
             return true;
         }
 
-        private void ConnectWebSocket()
-        {
-            Logger.Debug("Establishing Connection To Com Server Web Socket.");
-            var hubQueryStringData = new Dictionary<string, string>();
-            hubQueryStringData.Add("computerGuid", DtoGobalSettings.ClientIdentity.Guid);
-            var hubConnection = new HubConnection(DtoGobalSettings.ComServer,hubQueryStringData);
-            var hubProxy = hubConnection.CreateHubProxy("ActionHub");
-            hubProxy.On<DtoHubAction>("ClientAction", hubAction => new ServiceHubAction().Process(hubAction));
-            hubConnection.Start().ContinueWith(task =>
-            {
-                if (task.IsFaulted)
-                {
-                    Console.WriteLine("There was an error opening the connection:{0}",
-                                      task.Exception.GetBaseException());
-
-                    return;
-                }
-                else
-                {
-                    Console.WriteLine("Connected to Server.The ConnectionID is:" + hubConnection.ConnectionId);
-
-                }
-
-            });
-
-        }
+      
 
         private bool TestConnectionForActive()
         {

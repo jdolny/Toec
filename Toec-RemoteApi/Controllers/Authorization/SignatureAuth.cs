@@ -30,7 +30,7 @@ namespace Toec_RemoteApi.Controllers.Authorization
 
         public Task AuthenticateAsync(HttpAuthenticationContext context, CancellationToken cancellationToken)
         {
-            logId = logId = Guid.NewGuid().ToString("n").Substring(0, 8);
+            logId = Guid.NewGuid().ToString("n").Substring(0, 8);
             var req = context.Request;
             Logger.Debug($"ID: {logId} - Received remote api auth request");
             Logger.Debug($"ID: {logId} - Request URI {req.RequestUri} ");
