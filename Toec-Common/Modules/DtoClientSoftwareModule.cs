@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Toec_Common.Dto;
 using Toec_Common.Enum;
 
 namespace Toec_Common.Modules
@@ -23,5 +24,8 @@ namespace Toec_Common.Modules
         public List<string> SuccessCodes { get; set; }
         public int Timeout { get; set; }
         public string RunAs { get; set; }
+        public EnumCondition.FailedAction ConditionFailedAction { get; set; }
+        public int ConditionNextOrder { get; set; }
+        public DtoClientModuleCondition Condition { get; set; }
     }
 }

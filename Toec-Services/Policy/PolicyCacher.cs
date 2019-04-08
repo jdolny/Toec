@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using log4net;
+using Newtonsoft.Json;
 using Toec_Common.Dto;
 using Toec_Common.Enum;
 using Toec_Common.Modules;
@@ -37,6 +38,9 @@ namespace Toec_Services.Policy
             var moduleResult = new DtoModuleResult();
             moduleResult.Success = true;
 
+            if (!CacheCondition(_policy.Condition))
+                return _policyResult;
+
             foreach (var module in _policy.FileCopyModules)
             {
                 moduleResult.Name = module.DisplayName;
@@ -52,6 +56,9 @@ namespace Toec_Services.Policy
                     moduleResult.ErrorMessage = "Could Not Download File";
                     if (IsStopError(moduleResult)) return _policyResult;
                 }
+
+                if (!CacheCondition(module.Condition))
+                    return _policyResult;
             }
 
             foreach (var module in _policy.SoftwareModules)
@@ -69,6 +76,9 @@ namespace Toec_Services.Policy
                     moduleResult.ErrorMessage = "Could Not Download File";
                     if (IsStopError(moduleResult)) return _policyResult;
                 }
+
+                if (!CacheCondition(module.Condition))
+                    return _policyResult;
             }
 
             foreach (var module in _policy.CommandModules)
@@ -86,6 +96,9 @@ namespace Toec_Services.Policy
                     moduleResult.ErrorMessage = "Could Not Download File";
                     if (IsStopError(moduleResult)) return _policyResult;
                 }
+
+                if (!CacheCondition(module.Condition))
+                    return _policyResult;
             }
 
             foreach (var module in _policy.WuModules)
@@ -103,6 +116,9 @@ namespace Toec_Services.Policy
                     moduleResult.ErrorMessage = "Could Not Download File";
                     if (IsStopError(moduleResult)) return _policyResult;
                 }
+
+                if (!CacheCondition(module.Condition))
+                    return _policyResult;
             }
 
 
@@ -121,10 +137,59 @@ namespace Toec_Services.Policy
                     moduleResult.ErrorMessage = "Could Not Download Script";
                     if (IsStopError(moduleResult)) return _policyResult;
                 }
+
+                if (!CacheCondition(module.Condition))
+                    return _policyResult;
+            }
+
+            foreach (var module in _policy.MessageModules)
+            {
+                moduleResult.Name = module.DisplayName;
+                moduleResult.Guid = module.Guid;
+                if (!CacheCondition(module.Condition))
+                    return _policyResult;
+            }
+
+            foreach (var module in _policy.PrinterModules)
+            {
+                moduleResult.Name = module.DisplayName;
+                moduleResult.Guid = module.Guid;
+                if (!CacheCondition(module.Condition))
+                    return _policyResult;
             }
 
             Logger.Info(string.Format("Finished Caching Policy {0} ({1})", _policy.Guid, _policy.Name));
             return _policyResult;
+        }
+
+        private bool CacheCondition(DtoClientModuleCondition condition)
+        {
+            if(condition.Guid == null)
+            {
+                //no condition
+                return true;
+            }
+            //treat condition as script module
+            var conditionJson = JsonConvert.SerializeObject(condition);
+            var scriptModule = JsonConvert.DeserializeObject<DtoClientScriptModule>(conditionJson);
+
+            var moduleResult = new DtoModuleResult();
+            moduleResult.Success = true;
+
+            moduleResult.Name = scriptModule.DisplayName;
+            moduleResult.Guid = scriptModule.Guid;
+
+            if (!CreateDirectory(scriptModule.Guid))
+            {
+                moduleResult.ErrorMessage = "Could Not Create Cache Directory";
+                if (IsStopError(moduleResult)) return false;
+            }
+            if (!DownloadScriptFile(scriptModule))
+            {
+                moduleResult.ErrorMessage = "Could Not Download Script";
+                if (IsStopError(moduleResult)) return false;
+            }
+            return true;
         }
 
         private bool CreateDirectory(string moduleGuid)

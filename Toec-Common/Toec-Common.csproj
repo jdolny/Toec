@@ -43,6 +43,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dto\DtoClientModuleCondition.cs" />
     <Compile Include="Dto\DtoComServerConnection.cs" />
     <Compile Include="Dto\DtoDownloadConnectionResult.cs" />
     <Compile Include="Dto\DtoDownloadConRequest.cs" />
@@ -50,8 +51,10 @@
     <Compile Include="Dto\DtoImpersonationAccount.cs" />
     <Compile Include="Dto\DtoIpInfo.cs" />
     <Compile Include="Dto\DtoMessage.cs" />
+    <Compile Include="Dto\DtoSocketServerVerify.cs" />
     <Compile Include="Dto\DtoWolTask.cs" />
     <Compile Include="Entity\EntityAppMonitor.cs" />
+    <Compile Include="Enum\EnumCondition.cs" />
     <Compile Include="Inventory\DtoLogicalVolumeInventory.cs" />
     <Compile Include="Inventory\DtoLogicalVolumeWmi.cs" />
     <Compile Include="Inventory\DtoBitlockerInventory.cs" />
@@ -113,6 +116,7 @@
     <Compile Include="Enum\EnumSoftwareModule.cs" />
     <Compile Include="Enum\EnumStartupDelay.cs" />
     <Compile Include="Enum\EnumUserTracker.cs" />
+    <Compile Include="Modules\DtoClientMessageModule.cs" />
     <Compile Include="Modules\DtoClientWuModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

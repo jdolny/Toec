@@ -1,4 +1,5 @@
-﻿using Toec_Common.Enum;
+﻿using Toec_Common.Dto;
+using Toec_Common.Enum;
 
 namespace Toec_Common.Modules
 {
@@ -12,5 +13,8 @@ namespace Toec_Common.Modules
         public string PrinterPath { get; set; }
         public bool RestartSpooler { get; set; }
         public bool WaitForEnumeration { get; set; }
+        public EnumCondition.FailedAction ConditionFailedAction { get; set; }
+        public int ConditionNextOrder { get; set; }
+        public DtoClientModuleCondition Condition { get; set; }
     }
 }

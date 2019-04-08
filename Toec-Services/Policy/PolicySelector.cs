@@ -581,7 +581,15 @@ namespace Toec_Services.Policy
                         policy.WuType != EnumPolicy.WuType.MicrosoftSkipUpgrades &&
                         policy.WuType != EnumPolicy.WuType.Wsus && policy.WuType != EnumPolicy.WuType.WsusSkipUpgrades)
                         return false;
-
+                    if (policy.Condition.Guid != null)
+                    {
+                        if (policy.ConditionFailedAction != EnumCondition.FailedAction.MarkFailed && policy.ConditionFailedAction != EnumCondition.FailedAction.MarkNotApplicable
+                            && policy.ConditionFailedAction != EnumCondition.FailedAction.MarkSkipped && policy.ConditionFailedAction != EnumCondition.FailedAction.MarkSuccess)
+                        {
+                            return false;
+                        }
+                    }
+                
                     foreach (var module in policy.CommandModules)
                     {
                         if (string.IsNullOrEmpty(module.Guid))
@@ -725,6 +733,22 @@ namespace Toec_Services.Policy
                             if (string.IsNullOrEmpty(file.FileHash))
                                 return false;
                         }
+                    }
+                    foreach (var module in policy.MessageModules)
+                    {
+                        if (string.IsNullOrEmpty(module.Guid))
+                            return false;
+                        if (string.IsNullOrEmpty(module.DisplayName))
+                            return false;
+                        if (!int.TryParse(module.Order.ToString(), out value))
+                            return false;
+                        if (!int.TryParse(module.Timeout.ToString(), out value))
+                            return false;
+                        if (string.IsNullOrEmpty(module.Title))
+                            return false;
+                        if (string.IsNullOrEmpty(module.Message))
+                            return false;
+                        
                     }
                 }
             }

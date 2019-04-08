@@ -8,23 +8,14 @@ using Toec_Common.Enum;
 
 namespace Toec_Common.Modules
 {
-    public class DtoClientWuModule
+    public class DtoClientMessageModule
     {
-        public DtoClientWuModule()
-        {
-            Files = new List<DtoClientFileHash>();
-            SuccessCodes = new List<string>();
-
-        }
         public string Guid { get; set; }
         public string DisplayName { get; set; }
-        public string Arguments { get; set; }
-        public int Order { get; set; }
+        public string Title { get; set; }
+        public string Message { get; set; }
         public int Timeout { get; set; }
-        public bool RedirectOutput { get; set; }
-        public bool RedirectError { get; set; }
-        public List<DtoClientFileHash> Files { get; set; }
-        public List<string> SuccessCodes { get; set; }
+        public int Order { get; set; }
         public EnumCondition.FailedAction ConditionFailedAction { get; set; }
         public int ConditionNextOrder { get; set; }
         public DtoClientModuleCondition Condition { get; set; }

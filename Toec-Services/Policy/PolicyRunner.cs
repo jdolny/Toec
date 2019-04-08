@@ -40,7 +40,7 @@ namespace Toec_Services.Policy
             {
                 if (policyResult.ExecutionType == EnumPolicy.ExecutionType.Install && policyResult.DeleteCache &&
                     (policyResult.PolicyResult == EnumPolicy.Result.Success ||
-                     policyResult.PolicyResult == EnumPolicy.Result.Skipped))
+                     policyResult.PolicyResult == EnumPolicy.Result.NotApplicable))
                 {
                     var result = policyResult;
                     foreach (
@@ -124,8 +124,10 @@ namespace Toec_Services.Policy
                         serverHistory.Result = EnumPolicyHistory.RunResult.Success;
                     else if (policyResult.PolicyResult == EnumPolicy.Result.Failed)
                         serverHistory.Result = EnumPolicyHistory.RunResult.Failed;
-                    else
+                    else if (policyResult.PolicyResult == EnumPolicy.Result.Skipped)
                         serverHistory.Result = EnumPolicyHistory.RunResult.Skipped;
+                    else
+                        serverHistory.Result = EnumPolicyHistory.RunResult.NotApplicable;
 
                     serverHistory.PolicyGuid = policyResult.PolicyGuid;
                     serverHistory.LastRunTime = DateTime.UtcNow;
@@ -133,7 +135,7 @@ namespace Toec_Services.Policy
                     serverHistoryList.Add(serverHistory);
                 }
                 //Don't record local results if not success, only server
-                if (policyResult.PolicyResult == EnumPolicy.Result.Success)
+                if (policyResult.PolicyResult == EnumPolicy.Result.Success || policyResult.PolicyResult == EnumPolicy.Result.NotApplicable)
                 {
                     if (policyResult.ScriptOutputs.Count > 0)
                         customInventoryList.AddRange(policyResult.ScriptOutputs);
@@ -182,9 +184,34 @@ namespace Toec_Services.Policy
             DtoGobalSettings.PolicyIsRunning = true;
             bool cacheFailedWithTriggerStop = false;
 
+            //Check for any conditions that will need cached
+            var conditionNeedsCached = false;
+            if(_policiesToRun.Policies.Any(x=> x.MessageModules.Any()))
+            {
+                foreach(var messageModule in _policiesToRun.Policies.Select(x => x.MessageModules))
+                {
+                    if(messageModule.Any(x => x.Condition.Guid != null))
+                    {
+                        conditionNeedsCached = true;
+                        break;
+                    }
+                }
+            }
+            if (_policiesToRun.Policies.Any(x => x.PrinterModules.Any()) && !conditionNeedsCached)
+            {
+                foreach (var printerModule in _policiesToRun.Policies.Select(x => x.PrinterModules))
+                {
+                    if (printerModule.Any(x => x.Condition.Guid != null))
+                    {
+                        conditionNeedsCached = true;
+                        break;
+                    }
+                }
+            }
+
             //cache all policies first if any need cached
             if (_policiesToRun.Policies.Any(x =>
-                x.SoftwareModules.Count > 0 || x.FileCopyModules.Count > 0 ||  x.WuModules.Count > 0 || x.ScriptModules.Count > 0 || x.CommandModules.Count > 0))
+                x.SoftwareModules.Any() || x.FileCopyModules.Any() ||  x.WuModules.Any() || x.ScriptModules.Any() || x.CommandModules.Any()) || conditionNeedsCached || _policiesToRun.Policies.Any(x => x.Condition.Guid != null))
             {
                 //grab a download slot
                 Logger.Debug("Obtaining A Download Connection.");

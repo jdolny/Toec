@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using log4net;
+using Newtonsoft.Json;
 using Toec_Common.Dto;
 using Toec_Common.Enum;
 using Toec_Common.Modules;
@@ -15,7 +16,7 @@ namespace Toec_Services.Policy
         private readonly DtoClientPolicy _policy;
 
         private readonly DtoPolicyResult _policyResult;
-
+        private int? _conditionNextOrder;
         public PolicyExecutor(DtoClientPolicy policy)
         {
             _policyResult = new DtoPolicyResult();
@@ -31,6 +32,31 @@ namespace Toec_Services.Policy
         public DtoPolicyResult Execute()
         {
             Logger.Info(string.Format("Executing Policy {0} ({1})", _policy.Guid, _policy.Name));
+
+            Logger.Debug($"Evaluating Conditions For {_policy.Name}");
+            if (!CheckCondition(_policy.Condition))
+            {
+                if (_policy.ConditionFailedAction == EnumCondition.FailedAction.MarkSuccess)
+                {
+                    _policyResult.PolicyResult = EnumPolicy.Result.Success;
+                    return _policyResult;
+                }
+                else if (_policy.ConditionFailedAction == EnumCondition.FailedAction.MarkFailed)
+                {
+                    _policyResult.PolicyResult = EnumPolicy.Result.Failed;
+                    return _policyResult;
+                }
+                else if (_policy.ConditionFailedAction == EnumCondition.FailedAction.MarkNotApplicable)
+                {
+                    _policyResult.PolicyResult = EnumPolicy.Result.NotApplicable;
+                    return _policyResult;
+                }
+                else if (_policy.ConditionFailedAction == EnumCondition.FailedAction.MarkSkipped)
+                {
+                    _policyResult.PolicyResult = EnumPolicy.Result.Skipped;
+                    return _policyResult;
+                }
+            }
 
             if (_policy.Trigger != EnumPolicy.Trigger.Login)
             {
@@ -50,10 +76,46 @@ namespace Toec_Services.Policy
             var orderCounter = -1;
             foreach (var order in GetPolicyModuleOrder(_policy))
             {
+                //handles a condition goto next step
+                if(_conditionNextOrder != null)
+                {
+                    if (order != _conditionNextOrder)
+                        continue;
+                }
+
                 orderCounter++;
                 foreach (var module in _policy.SoftwareModules)
                 {
                     if (module.Order != order) continue;
+                    Logger.Debug($"Evaluating Conditions For {module.DisplayName}");
+                    if (!CheckCondition(module.Condition))
+                    {
+                        if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkSuccess)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Success;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkFailed)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Failed;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkNotApplicable)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.NotApplicable;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkSkipped)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Skipped;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.GotoModule)
+                        {
+                            _conditionNextOrder = module.ConditionNextOrder;
+                            break;
+                        }
+                    }
                     var result = new ModuleSoftwareManager(module).Run();
                     if (result.Success) continue;
                     if (IsPolicyStopError(result)) return _policyResult;
@@ -61,6 +123,35 @@ namespace Toec_Services.Policy
                 foreach (var module in _policy.ScriptModules)
                 {
                     if (module.Order != order) continue;
+                    Logger.Debug($"Evaluating Conditions For {module.DisplayName}");
+                    if (!CheckCondition(module.Condition))
+                    {
+                        if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkSuccess)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Success;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkFailed)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Failed;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkNotApplicable)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.NotApplicable;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkSkipped)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Skipped;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.GotoModule)
+                        {
+                            _conditionNextOrder = module.ConditionNextOrder;
+                            break;
+                        }
+                    }
                     var result = new ModuleScriptManager(module).Run();
                     if (result.Success)
                     {
@@ -68,28 +159,40 @@ namespace Toec_Services.Policy
                             _policyResult.ScriptOutputs.Add(result.ScriptOutput);
                         continue;
                     }
-                    if (module.IsCondition) //script module has failed by this point
-                    {
-                        if (orderCounter == 0)
-                        {
-                            //if module is condition and condition failed, break out of remaining policy
-                            Logger.Debug("First Policy Condition Not Met.  Marked As Not Applicable");
-                            _policyResult.PolicyResult = EnumPolicy.Result.Skipped;
-                            return _policyResult;
-                        }
-                        else
-                        {
-                            //Condition was used later in the policy not first, don't marked as skipped, use last result value.
-                            Logger.Debug("Policy Condition Not Met.  Skipping Remaining Policy Modules.");
-                            return _policyResult;
-                        }
-                        
-                    }
                     if (IsPolicyStopError(result)) return _policyResult;
                 }
                 foreach (var module in _policy.PrinterModules)
                 {
                     if (module.Order != order) continue;
+                    Logger.Debug($"Evaluating Conditions For {module.DisplayName}");
+                    if (!CheckCondition(module.Condition))
+                    {
+                        if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkSuccess)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Success;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkFailed)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Failed;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkNotApplicable)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.NotApplicable;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkSkipped)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Skipped;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.GotoModule)
+                        {
+                            _conditionNextOrder = module.ConditionNextOrder;
+                            break;
+                        }
+                    }
                     var result = new ModulePrintManager(module, _policy.Trigger).Run();
                     if (result.Success) continue;
                     if (IsPolicyStopError(result)) return _policyResult;
@@ -97,6 +200,35 @@ namespace Toec_Services.Policy
                 foreach (var module in _policy.FileCopyModules)
                 {
                     if (module.Order != order) continue;
+                    Logger.Debug($"Evaluating Conditions For {module.DisplayName}");
+                    if (!CheckCondition(module.Condition))
+                    {
+                        if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkSuccess)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Success;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkFailed)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Failed;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkNotApplicable)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.NotApplicable;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkSkipped)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Skipped;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.GotoModule)
+                        {
+                            _conditionNextOrder = module.ConditionNextOrder;
+                            break;
+                        }
+                    }
                     var result = new ModuleFileCopy(module).Run();
                     if (result.Success) continue;
                     if (IsPolicyStopError(result)) return _policyResult;
@@ -104,6 +236,35 @@ namespace Toec_Services.Policy
                 foreach (var module in _policy.CommandModules)
                 {
                     if (module.Order != order) continue;
+                    Logger.Debug($"Evaluating Conditions For {module.DisplayName}");
+                    if (!CheckCondition(module.Condition))
+                    {
+                        if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkSuccess)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Success;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkFailed)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Failed;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkNotApplicable)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.NotApplicable;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkSkipped)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Skipped;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.GotoModule)
+                        {
+                            _conditionNextOrder = module.ConditionNextOrder;
+                            break;
+                        }
+                    }
                     var result = new ModuleCommandManager(module).Run();
                     if (result.Success) continue;
                     if (IsPolicyStopError(result)) return _policyResult;
@@ -111,7 +272,72 @@ namespace Toec_Services.Policy
                 foreach (var module in _policy.WuModules)
                 {
                     if (module.Order != order) continue;
+                    Logger.Debug($"Evaluating Conditions For {module.DisplayName}");
+                    if (!CheckCondition(module.Condition))
+                    {
+                        if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkSuccess)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Success;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkFailed)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Failed;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkNotApplicable)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.NotApplicable;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkSkipped)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Skipped;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.GotoModule)
+                        {
+                            _conditionNextOrder = module.ConditionNextOrder;
+                            break;
+                        }
+                    }
                     var result = new ModuleWuManager(module).Run();
+                    if (result.Success) continue;
+                    if (IsPolicyStopError(result)) return _policyResult;
+                }
+                foreach (var module in _policy.MessageModules)
+                {
+                    if (module.Order != order) continue;
+                    Logger.Debug($"Evaluating Conditions For {module.DisplayName}");
+                    if (!CheckCondition(module.Condition))
+                    {
+                        if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkSuccess)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Success;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkFailed)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Failed;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkNotApplicable)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.NotApplicable;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkSkipped)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Skipped;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.GotoModule)
+                        {
+                            _conditionNextOrder = module.ConditionNextOrder;
+                            break;
+                        }
+                    }
+                    var result = new ModuleMessage(module).Run();
                     if (result.Success) continue;
                     if (IsPolicyStopError(result)) return _policyResult;
                 }
@@ -128,6 +354,35 @@ namespace Toec_Services.Policy
             return _policyResult;
         }
 
+        private bool CheckCondition(DtoClientModuleCondition condition)
+        {
+            _conditionNextOrder = null;
+            if (condition.Guid == null)
+            {
+                //no condition
+                Logger.Debug($"No Conditions Found For Module");
+                return true;
+            }
+            //treat condition as script module
+            var conditionJson = JsonConvert.SerializeObject(condition);
+            var scriptModule = JsonConvert.DeserializeObject<DtoClientScriptModule>(conditionJson);
+
+            var conditionResult = new ModuleScriptManager(scriptModule).Run();
+            if (conditionResult.Success)
+            {
+                if (conditionResult.ScriptOutput != null)
+                    _policyResult.ScriptOutputs.Add(conditionResult.ScriptOutput);
+
+                Logger.Debug($"Condition Evaluation Completed Successfully");
+                return true;
+
+            }
+
+            Logger.Debug("Condition Evaluation Was Not Satisfied");
+            return false;
+
+        }
+
         private List<int> GetPolicyModuleOrder(DtoClientPolicy policy)
         {
             var list = new List<int>();
@@ -137,6 +392,7 @@ namespace Toec_Services.Policy
             list.AddRange(policy.FileCopyModules.Select(module => module.Order));
             list.AddRange(policy.CommandModules.Select(module => module.Order));
             list.AddRange(policy.WuModules.Select(module => module.Order));
+            list.AddRange(policy.MessageModules.Select(module => module.Order));
 
             var distictList = list.Distinct().ToList();
             distictList.Sort();

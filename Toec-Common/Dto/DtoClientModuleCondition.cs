@@ -3,30 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Toec_Common.Dto;
 using Toec_Common.Enum;
 
-namespace Toec_Common.Modules
+namespace Toec_Common.Dto
 {
-    public class DtoClientWuModule
+    public class DtoClientModuleCondition
     {
-        public DtoClientWuModule()
+        public DtoClientModuleCondition()
         {
-            Files = new List<DtoClientFileHash>();
             SuccessCodes = new List<string>();
-
+            RunAs = string.Empty;
         }
         public string Guid { get; set; }
         public string DisplayName { get; set; }
         public string Arguments { get; set; }
-        public int Order { get; set; }
         public int Timeout { get; set; }
         public bool RedirectOutput { get; set; }
         public bool RedirectError { get; set; }
-        public List<DtoClientFileHash> Files { get; set; }
+        public EnumScriptModule.ScriptType ScriptType { get; set; }
         public List<string> SuccessCodes { get; set; }
-        public EnumCondition.FailedAction ConditionFailedAction { get; set; }
-        public int ConditionNextOrder { get; set; }
-        public DtoClientModuleCondition Condition { get; set; }
+        public string WorkingDirectory { get; set; }
+        public string RunAs { get; set; }
     }
 }

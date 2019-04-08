@@ -58,7 +58,8 @@
         {
             Success = 0,
             Failed = 1,
-            Skipped = 2
+            Skipped = 2,
+            NotApplicable = 3,
         }
 
         public enum StartupDelayType

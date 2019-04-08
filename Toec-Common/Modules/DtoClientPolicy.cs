@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Toec_Common.Dto;
 using Toec_Common.Enum;
 
 namespace Toec_Common.Modules
@@ -13,6 +14,7 @@ namespace Toec_Common.Modules
             ScriptModules = new List<DtoClientScriptModule>();
             SoftwareModules = new List<DtoClientSoftwareModule>();
             WuModules = new List<DtoClientWuModule>();
+            MessageModules = new List<DtoClientMessageModule>();
             SkipServerResult = false;
         }
 
@@ -37,9 +39,12 @@ namespace Toec_Common.Modules
         public List<DtoClientScriptModule> ScriptModules { get; set; }
         public List<DtoClientSoftwareModule> SoftwareModules { get; set; }
         public List<DtoClientWuModule> WuModules { get; set; }
+        public List<DtoClientMessageModule> MessageModules { get; set; }
         public int SubFrequency { get; set; }
         public bool SkipServerResult { get; set; }
         public EnumPolicy.Trigger Trigger { get; set; }
         public EnumPolicy.WuType WuType { get; set; }
+        public EnumCondition.FailedAction ConditionFailedAction { get; set; }
+        public DtoClientModuleCondition Condition { get; set; }
     }
 }
