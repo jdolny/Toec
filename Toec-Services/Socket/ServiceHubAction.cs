@@ -75,7 +75,7 @@ namespace Toec_Services.Socket
 
         private void RunStartMesh()
         {
-            new ServiceMesh().Start();
+            new RemoteAccess.Install();
         }
 
         private void RunWakeup(DtoWolTask wolTask)

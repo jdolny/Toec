@@ -117,6 +117,7 @@
     <Compile Include="Policy\PolicyExecutor.cs" />
     <Compile Include="Policy\PolicyRunner.cs" />
     <Compile Include="Policy\PolicySelector.cs" />
+    <Compile Include="RemoteAccess\Install.cs" />
     <Compile Include="ServiceActiveComServer.cs" />
     <Compile Include="ServiceAD.cs" />
     <Compile Include="ServiceApplicationMonitor.cs" />
@@ -124,7 +125,6 @@
     <Compile Include="Crypto\ServiceDP.cs" />
     <Compile Include="Socket\ServiceHubAction.cs" />
     <Compile Include="ServiceLogLevel.cs" />
-    <Compile Include="ServiceMesh.cs" />
     <Compile Include="ServicePortSelector.cs" />
     <Compile Include="ServiceImpersonationTask.cs" />
     <Compile Include="ServicePrepareImage.cs" />

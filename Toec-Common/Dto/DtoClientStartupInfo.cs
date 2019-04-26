@@ -10,5 +10,7 @@ namespace Toec_Common.Dto
         public bool IsError { get; set; }
         public string SubDelay { get; set; }
         public string ThresholdWindow { get; set; }
+        public string ExpectedMeshVersion { get; set; }
+        public bool RemoteAccessRequiresConsent { get; set; }
     }
 }

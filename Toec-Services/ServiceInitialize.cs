@@ -41,6 +41,8 @@ namespace Toec_Services
                         continue;
                     }
 
+                    DtoGobalSettings.ExpectedRemoteAccessVersion = startupInfo.ExpectedMeshVersion;
+                    DtoGobalSettings.RemoteAccessConsentRequired = startupInfo.RemoteAccessRequiresConsent;
 
                     threshold = Convert.ToInt32(startupInfo.ThresholdWindow);
                     if (startupInfo.DelayType == EnumStartupDelay.DelayType.None)

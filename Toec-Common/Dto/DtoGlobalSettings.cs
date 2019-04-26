@@ -14,7 +14,7 @@ namespace Toec_Common.Dto
 
         public static string ClientVersion
         {
-            get { return "1.0.0.0"; }
+            get { return "1.1.0.0"; }
         }
 
         public static string ComServer { get; set; }
@@ -25,5 +25,7 @@ namespace Toec_Common.Dto
         public static string RemoteApiPort { get; set; }
         public static bool ServiceStartupComplete { get; set; }
         public static DateTime ServiceStartTime { get; set; }
+        public static string ExpectedRemoteAccessVersion { get; set; }
+        public static bool RemoteAccessConsentRequired { get; set; }
     }
 }
