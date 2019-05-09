@@ -251,6 +251,11 @@
               Name="System.Web.Http.Owin.dll" KeyPath="yes" />
       </Component>
 
+      <Component Id="SignalR" Guid="*">
+        <File Source="$(var.serviceSourcePath)Microsoft.AspNet.SignalR.Client.dll" Id="SignalR"
+              Name="Microsoft.AspNet.SignalR.Client.dll" KeyPath="yes" />
+      </Component>
+
       <Component Id="SQLiteInterop" Guid="*">
         <File Source="$(var.serviceSourcePath)$(sys.BUILDARCH)\SQLite.Interop.dll" Id="SQLiteInterop"
               Name="SQLite.Interop.dll" KeyPath="yes" />
