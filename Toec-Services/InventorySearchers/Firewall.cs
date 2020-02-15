@@ -12,12 +12,22 @@ namespace Toec_Services.InventorySearchers
         public void Search(DtoInventoryCollection collection)
         {
             //http://csharphelper.com/blog/2015/01/access-firewall-information-and-check-firewall-status-using-the-dynamic-keyword-in-c/
-            
-            Type FWManagerType = Type.GetTypeFromProgID("HNetCfg.FwPolicy2");
-            dynamic FWManager = Activator.CreateInstance(FWManagerType);
-            collection.Firewall.DomainEnabled = FWManager.FirewallEnabled(NET_FW_PROFILE2_DOMAIN);
-            collection.Firewall.PrivateEnabled =  FWManager.FirewallEnabled(NET_FW_PROFILE2_PRIVATE);
-            collection.Firewall.PublicEnabled = FWManager.FirewallEnabled(NET_FW_PROFILE2_PUBLIC);
+
+            try
+            {
+                Type FWManagerType = Type.GetTypeFromProgID("HNetCfg.FwPolicy2");
+                dynamic FWManager = Activator.CreateInstance(FWManagerType);
+                collection.Firewall.DomainEnabled = FWManager.FirewallEnabled(NET_FW_PROFILE2_DOMAIN);
+                collection.Firewall.PrivateEnabled = FWManager.FirewallEnabled(NET_FW_PROFILE2_PRIVATE);
+                collection.Firewall.PublicEnabled = FWManager.FirewallEnabled(NET_FW_PROFILE2_PUBLIC);
+            }
+            catch
+            {
+                //firewall service may be disabled
+                collection.Firewall.DomainEnabled = false;
+                collection.Firewall.PrivateEnabled = false;
+                collection.Firewall.PublicEnabled = false;
+            }
         }
     }
 }
