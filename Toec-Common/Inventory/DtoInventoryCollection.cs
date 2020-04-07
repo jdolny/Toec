@@ -38,5 +38,6 @@ namespace Toec_Common.Inventory
         public List<DtoBitlockerInventory> Bitlocker { get; set; }
         public List<DtoLogicalVolumeInventory> LogicalVolume { get; set; } 
         public List<DtoCertificateInventory> Certificates { get; set; }
+        public string HardwareUUID { get; set; }
     }
 }

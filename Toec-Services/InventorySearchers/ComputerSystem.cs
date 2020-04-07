@@ -10,6 +10,15 @@ namespace Toec_Services.InventorySearchers
             {
                 collection.ComputerSystem = wmi.Execute();
             }
+
+            using (var wmi = new ServiceWmi<DtoComputerSystemProduct>(new DtoComputerSystemProduct()))
+            {
+                var computerSystemProduct = wmi.Execute();
+                if (computerSystemProduct != null)
+                    collection.HardwareUUID = computerSystemProduct.UUID;
+                else
+                    collection.HardwareUUID = string.Empty;
+            }
         }
     }
 }

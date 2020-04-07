@@ -55,6 +55,7 @@
     <Compile Include="Dto\DtoWolTask.cs" />
     <Compile Include="Entity\EntityAppMonitor.cs" />
     <Compile Include="Enum\EnumCondition.cs" />
+    <Compile Include="Inventory\DtoComputerSystemProduct.cs" />
     <Compile Include="Inventory\DtoLogicalVolumeInventory.cs" />
     <Compile Include="Inventory\DtoLogicalVolumeWmi.cs" />
     <Compile Include="Inventory\DtoBitlockerInventory.cs" />

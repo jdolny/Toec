@@ -4,8 +4,8 @@
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension"
      xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
 
-  <?define Version = "1.1.0.0" ?>
-  <?define DisplayVersion = "1.1.0" ?>
+  <?define Version = "1.2.0.0" ?>
+  <?define DisplayVersion = "1.2.0" ?>
   <?if $(sys.BUILDARCH)=x64?>
   <?define Win64 = "yes" ?>
   <?define msiProductId = "4df95de6-02f2-48ae-9354-d312d2458d60" ?>
@@ -33,7 +33,7 @@
     </util:CloseApplication>
     <Property Id="MSIUSEREALADMINDETECTION" Value="1" />
 
-    <Condition Message="You Must Run With Elevated Privileges.">
+    <Condition Message="You Must Run With Elevated Privileges."> 
       Privileged
     </Condition>
     <PropertyRef Id="WIX_IS_NETFRAMEWORK_46_OR_LATER_INSTALLED" />

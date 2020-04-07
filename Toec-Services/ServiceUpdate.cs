@@ -52,7 +52,7 @@ namespace Toec_Services
                     //client version is older than server, start the client upgrade process
                     Logger.Info("Client Update Required");
                     var arch = Environment.Is64BitOperatingSystem ? "-x64.msi" : "-x86.msi";
-                    return UpdateClient($"Toec-{serverMajor}.{serverMinor}.{serverBuild}{arch}", $"Toec-{serverMajor}.{serverMinor}.{serverBuild}.mst");
+                    return UpdateClient($"Toec-{serverMajor}.{serverMinor}.{serverBuild}{arch}");
 
                 }
                 catch (Exception ex)
@@ -66,7 +66,7 @@ namespace Toec_Services
             return true;
         }
 
-        private bool UpdateClient(string msiFile, string mstFile)
+        private bool UpdateClient(string msiFile)
         {
             Logger.Info("Updating Toec To: " + msiFile);
          
@@ -116,16 +116,6 @@ namespace Toec_Services
                 return false;
             }
 
-            var mstRequest = new DtoClientFileRequest();
-            mstRequest.FileName = mstFile;
-            Logger.Debug($"Downloading {mstRequest.FileName}");
-            if (!new APICall().PolicyApi.GetClientUpgrade(mstRequest, DtoGobalSettings.ClientIdentity.Name))
-            {
-                Logger.Debug("Releasing The Download Connection.");
-                new APICall().PolicyApi.RemoveDownloadConnection(downloadConRequest);
-                return false;
-            }
-
             Logger.Debug("Releasing The Download Connection.");
             new APICall().PolicyApi.RemoveDownloadConnection(downloadConRequest);
 
@@ -135,16 +125,10 @@ namespace Toec_Services
                 return false;
             }
 
-            if (new FileInfo(DtoGobalSettings.BaseCachePath + "ClientUpgrades\\" + mstFile).Length < 1)
-            {
-                Logger.Debug("MST File was invalid.");
-                return false;
-            }
-
             var pArgs = new DtoProcessArgs();
             pArgs.RunWith = "msiexec.exe";
             pArgs.RunWithArgs = " /i ";
-            pArgs.Command = "\"" + DtoGobalSettings.BaseCachePath + "ClientUpgrades\\" + msiFile + "\"" + $" TRANSFORMS={mstFile} /q /norestart";         
+            pArgs.Command = "\"" + DtoGobalSettings.BaseCachePath + "ClientUpgrades\\" + msiFile + "\"" + $" /q /norestart";         
             pArgs.Timeout = 5;
             pArgs.WorkingDirectory = DtoGobalSettings.BaseCachePath + "ClientUpgrades\\";
             var result = new ServiceProcess(pArgs).RunProcess();
