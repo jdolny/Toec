@@ -22,8 +22,10 @@
   <?define helperSourcePath = "..\Toec-InstallHelper\bin\x86\Release\" ?>
   <?endif ?>
 
+  
   <Product Id="*" Name="Toec $(var.Version) $(sys.BUILDARCH)" Language="1033" Version="$(var.Version)"
            Manufacturer="Magaeric Solutions LLC" UpgradeCode="47573ddd-b162-4adc-95d3-81c648b01262">
+   
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" InstallPrivileges="elevated"  />
     <util:CloseApplication Id="CloseToec" Target="Toec.exe" CloseMessage="no" RebootPrompt="no"
                            TerminateProcess="0">
@@ -31,18 +33,40 @@
     <util:CloseApplication Id="CloseToecUI" Target="Toec-UI.exe" CloseMessage="no"
                            RebootPrompt="no" TerminateProcess="0">
     </util:CloseApplication>
-    <Property Id="MSIUSEREALADMINDETECTION" Value="1" />
+
+    <UI Id="UserInterface">
+      <Property Id="WIXUI_INSTALLDIR" Value="TARGETDIR" />
+      <Property Id="WixUI_Mode" Value="Custom" />
+
+      <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
+      <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="9" Bold="yes" />
+      <TextStyle Id="WixUI_Font_Title"  FaceName="Tahoma" Size="9" Bold="yes" />
+
+      <Property Id="DefaultUIFont" Value="WixUI_Font_Normal" />
+
+      <DialogRef Id="ProgressDlg" />
+      <DialogRef Id="ErrorDlg" />
+      <DialogRef Id="FilesInUse" />
+      <DialogRef Id="FatalError" />
+      <DialogRef Id="UserExit" />
+
+      <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999">1</Publish>
+      <!--<Publish Dialog="WelcomeDlg" Control="Next" Event="EndDialog" Value="Return" Order="2"></Publish>-->
+
+    </UI>
+    <UIRef Id="WixUI_Common" />
+    <!--<Property Id="MSIUSEREALADMINDETECTION" Value="1" />
 
     <Condition Message="You Must Run With Elevated Privileges."> 
       Privileged
-    </Condition>
+    </Condition>-->
     <PropertyRef Id="WIX_IS_NETFRAMEWORK_46_OR_LATER_INSTALLED" />
     <Condition
       Message="This application requires .NET Framework 4.6. Please install the .NET Framework then run this installer again.">
       <![CDATA[Installed OR WIX_IS_NETFRAMEWORK_46_OR_LATER_INSTALLED]]>
     </Condition>
 
-    <!--These Conditions Probably Won't Be Hit, Windows Should Stop The Installer Before It Gets Here For Architecture Mismatch-->
+
     <?if $(var.Platform) = x64 ?>
     <Condition Message="You Must Use The 32-bit Installer For This System.">
       <![CDATA[VersionNT64]]>
@@ -55,7 +79,7 @@
     <?endif?>
 
     <MajorUpgrade DowngradeErrorMessage="A Newer Version Of Toec Is Already Installed."
-                  AllowSameVersionUpgrades="yes" />
+                  AllowSameVersionUpgrades="no" />
     <MediaTemplate EmbedCab="yes" />
 
 
@@ -76,7 +100,7 @@
                   HideTarget="yes">
     </CustomAction>
     <CustomAction Id="InitializeDb" BinaryKey="InstallHelper" DllEntry="InitializeDatabase" Return="check"
-                  Execute="deferred">
+                  Execute="deferred" Impersonate="no">
     </CustomAction>
 
     <CustomAction Id="FirewallException_Data" Property="FirewallException"
@@ -84,7 +108,7 @@
                   HideTarget="yes">
     </CustomAction>
     <CustomAction Id="FirewallException" BinaryKey="InstallHelper" DllEntry="CreateFirewallException" Return="check"
-                  Execute="deferred">
+                  Execute="deferred" Impersonate="no">
     </CustomAction>
 
 
@@ -292,4 +316,5 @@
     <Binary Id="ToemsCA.Binary" SourceFile="extra_files\CA-placeholder.cer"  />
   </Fragment>
 
+  
 </Wix>
