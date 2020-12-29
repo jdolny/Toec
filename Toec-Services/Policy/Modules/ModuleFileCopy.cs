@@ -57,20 +57,6 @@ namespace Toec_Services.Policy.Modules
                     return _moduleResult;
                 }
 
-                var fileHash =
-                    _fileSystemService.GetFileHash(Path.Combine(DtoGobalSettings.BaseCachePath, _module.Guid,
-                        file.FileName));
-                if (!file.FileHash.Equals(fileHash))
-                {
-                    Logger.Error("File Hash Mismatch");
-                    Logger.Debug("Expected: " + file.FileHash);
-                    Logger.Debug("Actual: " + fileHash);
-                    _moduleResult.Success = false;
-                    _moduleResult.ExitCode = "-1";
-                    _moduleResult.ErrorMessage = "The Hash Of The Client File Does Not Match The Expected Server Hash.";
-                    return _moduleResult;
-                }
-
                 var extension = Path.GetExtension(file.FileName);
                 if (_module.Unzip && !string.IsNullOrEmpty(extension) && extension.ToLower().Equals(".zip"))
                 {
