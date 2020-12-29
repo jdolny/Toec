@@ -90,8 +90,6 @@
     <Property Id="CA_THUMBPRINT" Hidden="yes" />
     <Property Id="USER_PORT_RANGE" Hidden="yes" />
     <Property Id="RESET_DB" Hidden="yes" />
-    <Property Id="SKIP_FIREWALL" Hidden="yes" />
-    <Property Id="REMOTE_ADDRESSES" Hidden="yes" />
     <Property Id="LOG_LEVEL" Hidden="yes" />
 
     <Binary Id="InstallHelper" SourceFile="$(var.helperSourcePath)Toec-InstallHelper.CA.dll" />
@@ -103,21 +101,13 @@
                   Execute="deferred" Impersonate="no">
     </CustomAction>
 
-    <CustomAction Id="FirewallException_Data" Property="FirewallException"
-                  Value="REMOTE_API_PORT=[REMOTE_API_PORT];SKIP_FIREWALL=[SKIP_FIREWALL];REMOTE_ADDRESSES=[REMOTE_ADDRESSES];"
-                  HideTarget="yes">
-    </CustomAction>
-    <CustomAction Id="FirewallException" BinaryKey="InstallHelper" DllEntry="CreateFirewallException" Return="check"
-                  Execute="deferred" Impersonate="no">
-    </CustomAction>
+
 
 
     <InstallExecuteSequence>
       <Custom Action="WixCloseApplications" Before="InstallFiles"></Custom>
       <Custom Action="InitializeDb_Data" After="InstallFiles">NOT (REMOVE="ALL")</Custom>
       <Custom Action="InitializeDb" After="InitializeDb_Data">NOT (REMOVE="ALL")</Custom>
-      <Custom Action="FirewallException_Data" After="InitializeDb">NOT (REMOVE="ALL")</Custom>
-      <Custom Action="FirewallException" After="FirewallException_Data">NOT (REMOVE="ALL")</Custom>
     </InstallExecuteSequence>
     <Feature Id="ProductFeature" Title="Toec" Level="1">
 

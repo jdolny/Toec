@@ -5,7 +5,6 @@ using System.Threading;
 using log4net;
 using Microsoft.Owin.Hosting;
 using Toec_Common.Dto;
-using Toec_RemoteApi;
 using Toec_Services;
 using Toec_Services.Entity;
 
@@ -33,12 +32,6 @@ namespace Toec.ServiceHost
             var startupResult = new ServiceInitialize().OnStartTasks();
             if (startupResult)
             {
-                if (!string.IsNullOrEmpty(DtoGobalSettings.RemoteApiPort))
-                    _remoteServer =
-                        WebApp.Start<Startup>("http://*:" + DtoGobalSettings.RemoteApiPort);
-                else
-                    Logger.Info("Remote API Calls To This Device Have Been Disabled.  Port Is Not Defined.");
-
                 if (!string.IsNullOrEmpty(DtoGobalSettings.LocalApiPort))
                     _localServer =
                         WebApp.Start<Toec_LocalApi.Startup>("http://localhost:" + DtoGobalSettings.LocalApiPort);

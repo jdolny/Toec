@@ -168,10 +168,6 @@
       <Project>{133f6b1b-ae60-43b2-a88f-e2184628df2c}</Project>
       <Name>Toec-LocalApi</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Toec-RemoteApi\Toec-RemoteApi.csproj">
-      <Project>{07608bd1-48af-4e03-9b63-eefc08095fe4}</Project>
-      <Name>Toec-RemoteApi</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Toec-Services\Toec-Services.csproj">
       <Project>{6a129a6d-de3a-4490-bbbd-63646b3b4256}</Project>
       <Name>Toec-Services</Name>
