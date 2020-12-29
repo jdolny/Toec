@@ -158,6 +158,27 @@ namespace Toec_Services.Policy
                     return _policyResult;
             }
 
+            if((_policy.RemoteAccess == EnumPolicy.RemoteAccess.Enabled && !new ServiceSystemService().IsRemotelyInstalled()) ||
+                _policy.RemoteAccess == EnumPolicy.RemoteAccess.ForceReinstall)
+            {
+                var remoteAccessGuid = "99999999-9999-9999-9999-999999999999";
+                CreateDirectory(remoteAccessGuid);
+
+                var files = new List<DtoClientFileHash>();
+                if(Environment.Is64BitOperatingSystem)
+                {
+                    files.Add(new DtoClientFileHash() { FileName = "Remotely_Installer.exe" });
+                    files.Add(new DtoClientFileHash() { FileName = "Remotely-Win10-x64.zip" });
+                }
+                else
+                {
+                    files.Add(new DtoClientFileHash() { FileName = "Remotely_Installer.exe" });
+                    files.Add(new DtoClientFileHash() { FileName = "Remotely-Win10-x86.zip" });
+                }
+                DownloadFiles(files, remoteAccessGuid, "Remote Access",true);
+
+            }
+
             Logger.Info(string.Format("Finished Caching Policy {0} ({1})", _policy.Guid, _policy.Name));
             return _policyResult;
         }
@@ -243,7 +264,7 @@ namespace Toec_Services.Policy
             }
         }
 
-        private bool DownloadFiles(List<DtoClientFileHash> files, string moduleGuid, string moduleName)
+        private bool DownloadFiles(List<DtoClientFileHash> files, string moduleGuid, string moduleName, bool skipHash = false)
         {
             foreach (var file in files)
             {
@@ -251,6 +272,7 @@ namespace Toec_Services.Policy
 
                 if (File.Exists(Path.Combine(DtoGobalSettings.BaseCachePath, moduleGuid, file.FileName)))
                 {
+
                     var hash =
                         _fileSystemService.GetFileHash(Path.Combine(DtoGobalSettings.BaseCachePath, moduleGuid,
                             file.FileName));
@@ -259,6 +281,7 @@ namespace Toec_Services.Policy
                         Logger.Debug("File Is Already Cached.  Skipping.");
                         continue;
                     }
+
                 }
 
                 var fileRequest = new DtoClientFileRequest();
@@ -284,6 +307,31 @@ namespace Toec_Services.Policy
                         return false;
                     }
                 }
+
+                if (!skipHash)
+                {
+                    var fileHash =
+                    _fileSystemService.GetFileHash(Path.Combine(DtoGobalSettings.BaseCachePath, fileRequest.ModuleGuid,
+                        fileRequest.FileName));
+                    if (!file.FileHash.Equals(fileHash))
+                    {
+                        Logger.Error("File Hash Mismatch");
+                        Logger.Debug("Expected: " + file.FileHash);
+                        Logger.Debug("Actual: " + fileHash);
+                        Logger.Error("Could Not Cache Module: " + moduleName);
+                        try
+                        {
+                            File.Delete(_fileSystemService.GetFileHash(Path.Combine(DtoGobalSettings.BaseCachePath, fileRequest.ModuleGuid,
+                        fileRequest.FileName)));
+                        }
+                        catch
+                        {
+                            Logger.Debug("Could Not Delete File With Hash Mismatch.");
+                        }
+                        return false;
+                    }
+                }
+
                 Logger.Debug(string.Format("Download Complete {0}", file.FileName));
             }
             return true;

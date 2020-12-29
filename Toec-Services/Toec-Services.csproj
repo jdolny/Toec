@@ -108,6 +108,7 @@
     <Compile Include="Policy\Modules\ModuleFileCopy.cs" />
     <Compile Include="Policy\Modules\ModuleInventory.cs" />
     <Compile Include="Policy\Modules\ModulePrintManager.cs" />
+    <Compile Include="Policy\Modules\ModuleRemoteAccess.cs" />
     <Compile Include="Policy\Modules\ModuleScriptManager.cs" />
     <Compile Include="Policy\Modules\ModuleSoftwareManager.cs" />
     <Compile Include="Policy\Modules\ModuleApplicationMonitor.cs" />
@@ -117,7 +118,6 @@
     <Compile Include="Policy\PolicyExecutor.cs" />
     <Compile Include="Policy\PolicyRunner.cs" />
     <Compile Include="Policy\PolicySelector.cs" />
-    <Compile Include="RemoteAccess\Install.cs" />
     <Compile Include="ServiceActiveComServer.cs" />
     <Compile Include="ServiceAD.cs" />
     <Compile Include="ServiceApplicationMonitor.cs" />
@@ -147,6 +147,7 @@
     <Compile Include="ServiceTriggerAction.cs" />
     <Compile Include="ServiceWolRelay.cs" />
     <Compile Include="Socket\ServiceSocket.cs" />
+    <Compile Include="StartRemoteControl.cs" />
     <Compile Include="ZipExtensions.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -68,7 +68,6 @@ namespace Toec_Services.ApiCall
             return true;
         }
 
-
         public string GetScript(string moduleGuid)
         {
             Request.Method = Method.GET;
@@ -76,6 +75,31 @@ namespace Toec_Services.ApiCall
             Request.Resource = string.Format("ProvisionedComm/{0}/GetScript/", Resource);
             var responseData = new ApiRequest().ExecuteSymKeyEncryption<DtoStringResponse>(Request, string.Empty);
             return responseData != null ? responseData.Value : string.Empty;
+        }
+
+
+        public string GetRemotelyInstallArgs()
+        {
+            Request.Method = Method.GET;
+            Request.Resource = string.Format("ProvisionedComm/{0}/GetRemotelyInstallArgs/", Resource);
+            var responseData = new ApiRequest().ExecuteSymKeyEncryption<DtoStringResponse>(Request, string.Empty);
+            return responseData != null ? responseData.Value : string.Empty;
+        }
+
+        public DtoActionResult UpdateRemoteAccessId(RemotelyConnectionInfo conInfo)
+        {
+            Request.Method = Method.POST;
+            Request.Resource = string.Format("ProvisionedComm/{0}/UpdateRemoteAccessId/", Resource);
+            return new ApiRequest().ExecuteSymKeyEncryption<DtoActionResult>(Request,
+                JsonConvert.SerializeObject(conInfo));
+        }
+
+        public DtoActionResult UpdateLastSocketResult(DtoStringResponse result)
+        {
+            Request.Method = Method.POST;
+            Request.Resource = string.Format("ProvisionedComm/{0}/UpdateLastSocketResult/", Resource);
+            return new ApiRequest().ExecuteSymKeyEncryption<DtoActionResult>(Request,
+                JsonConvert.SerializeObject(result));
         }
 
         public DtoImpersonationAccount GetImpersonationAccount(string impersonationGuid)

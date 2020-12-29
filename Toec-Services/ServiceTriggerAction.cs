@@ -57,8 +57,6 @@ namespace Toec_Services
                 {
                     if (startupInfo.ExpectedClientVersion != null)
                     {
-                        DtoGobalSettings.ExpectedRemoteAccessVersion = startupInfo.ExpectedMeshVersion;
-                        DtoGobalSettings.RemoteAccessConsentRequired = startupInfo.RemoteAccessRequiresConsent;
 
                         if (!new ServiceUpdate().CheckUpdate(startupInfo.ExpectedClientVersion))
                         {
@@ -84,7 +82,6 @@ namespace Toec_Services
                 _checkinTimer.Start();
             }
             Logger.Info("Trigger Action: Checkin. Complete.");
-            new RemoteAccess.Install().CheckInstallation();
         }
 
         public void Startup()
@@ -100,7 +97,6 @@ namespace Toec_Services
                 _checkinTimer.Elapsed += RecurringCheckin;
                 _checkinTimer.Enabled = true;
                 Logger.Info("Trigger Action: Startup. Complete.");
-                new RemoteAccess.Install().CheckInstallation();
             }
             else
             {

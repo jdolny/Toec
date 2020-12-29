@@ -65,6 +65,7 @@ namespace Toec_Services.Socket
 
             var hubProxy = _hubConnection.CreateHubProxy("ActionHub");
             _hubConnection.Error += HubConnection_Error;
+            _hubConnection.StateChanged += _hubConnection_StateChanged;
             _hubConnection.Start().ContinueWith(task =>
             {
                 if (task.IsFaulted)
@@ -92,6 +93,14 @@ namespace Toec_Services.Socket
 
         }
 
+        private void _hubConnection_StateChanged(StateChange obj)
+        {
+            if (obj.NewState == ConnectionState.Disconnected)
+            {
+                StartWebSocket();
+            }
+        }
+
         private bool VerifyServer(DtoSocketServerVerify verification)
         {
 
@@ -102,6 +111,8 @@ namespace Toec_Services.Socket
         {
             Logger.Debug($"SignalR error: {obj.Message}");
         }
+
+
 
         private bool isValidRequest(DtoSocketServerVerify verification)
         {

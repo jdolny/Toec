@@ -28,6 +28,7 @@ namespace Toec_Common.Modules
         public string Guid { get; set; }
         public string Hash { get; set; }
         public EnumPolicy.InventoryAction IsInventory { get; set; }
+        public EnumPolicy.RemoteAccess RemoteAccess { get; set; }
         public bool IsLoginTracker { get; set; }
         public bool IsApplicationMonitor { get; set; }
         public EnumPolicy.LogLevel LogLevel { get; set; }

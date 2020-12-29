@@ -25,7 +25,6 @@ namespace Toec_Common.Dto
         public static string RemoteApiPort { get; set; }
         public static bool ServiceStartupComplete { get; set; }
         public static DateTime ServiceStartTime { get; set; }
-        public static string ExpectedRemoteAccessVersion { get; set; }
-        public static bool RemoteAccessConsentRequired { get; set; }
+
     }
 }

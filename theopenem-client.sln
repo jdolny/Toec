@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2050
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toec", "Toec\Toec.csproj", "{3D9E49D2-E65A-4993-93E2-4457DA15FCA9}"
 EndProject
@@ -10,8 +10,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toec-DataModel", "Toec-DataModel\Toec-DataModel.csproj", "{2D919906-3746-42B5-B17C-2595746E8E38}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toec-UI", "Toec-UI\Toec-UI.csproj", "{7C765E08-A2B0-4EFF-8E9E-EF4F28C6FEA4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toec-RemoteApi", "Toec-RemoteApi\Toec-RemoteApi.csproj", "{07608BD1-48AF-4E03-9B63-EEFC08095FE4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toec-LocalApi", "Toec-LocalApi\Toec-LocalApi.csproj", "{133F6B1B-AE60-43B2-A88F-E2184628DF2C}"
 EndProject
@@ -61,14 +59,6 @@ Global
 		{7C765E08-A2B0-4EFF-8E9E-EF4F28C6FEA4}.Release|x64.Build.0 = Release|x64
 		{7C765E08-A2B0-4EFF-8E9E-EF4F28C6FEA4}.Release|x86.ActiveCfg = Release|x86
 		{7C765E08-A2B0-4EFF-8E9E-EF4F28C6FEA4}.Release|x86.Build.0 = Release|x86
-		{07608BD1-48AF-4E03-9B63-EEFC08095FE4}.Debug|x64.ActiveCfg = Debug|x64
-		{07608BD1-48AF-4E03-9B63-EEFC08095FE4}.Debug|x64.Build.0 = Debug|x64
-		{07608BD1-48AF-4E03-9B63-EEFC08095FE4}.Debug|x86.ActiveCfg = Debug|x86
-		{07608BD1-48AF-4E03-9B63-EEFC08095FE4}.Debug|x86.Build.0 = Debug|x86
-		{07608BD1-48AF-4E03-9B63-EEFC08095FE4}.Release|x64.ActiveCfg = Release|x64
-		{07608BD1-48AF-4E03-9B63-EEFC08095FE4}.Release|x64.Build.0 = Release|x64
-		{07608BD1-48AF-4E03-9B63-EEFC08095FE4}.Release|x86.ActiveCfg = Release|x86
-		{07608BD1-48AF-4E03-9B63-EEFC08095FE4}.Release|x86.Build.0 = Release|x86
 		{133F6B1B-AE60-43B2-A88F-E2184628DF2C}.Debug|x64.ActiveCfg = Debug|x64
 		{133F6B1B-AE60-43B2-A88F-E2184628DF2C}.Debug|x64.Build.0 = Debug|x64
 		{133F6B1B-AE60-43B2-A88F-E2184628DF2C}.Debug|x86.ActiveCfg = Debug|x86
@@ -101,5 +91,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {340D4546-E324-4CBB-8C52-3C5084637DE7}
 	EndGlobalSection
 EndGlobal

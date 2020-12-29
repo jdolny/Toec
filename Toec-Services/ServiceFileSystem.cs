@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Security.Cryptography;
 using log4net;
+using Newtonsoft.Json;
 using Toec_Common.Dto;
 
 namespace Toec_Services
@@ -10,6 +11,30 @@ namespace Toec_Services
     public class ServiceFileSystem
     {
         private static readonly ILog Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+        public RemotelyConnectionInfo ReadRemotelyConnectionFile()
+        {
+            Logger.Debug("Reading Remotely Connection File");
+
+            try
+            {
+                using (var reader = new StreamReader(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Remotely", "ConnectionInfo.json")))
+                {
+                    var text = reader.ReadLine() ?? "";
+                    var conInfo = JsonConvert.DeserializeObject<RemotelyConnectionInfo>(text);
+                    if (string.IsNullOrEmpty(conInfo.DeviceID))
+                        return null;
+                    else
+                        return conInfo;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Could Not Read Connection File");
+                Logger.Error(ex.Message);
+            }
+            return null;
+        }
 
         public bool CopyFile(string source, string destination)
         {

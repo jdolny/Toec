@@ -26,6 +26,17 @@ namespace Toec_Services.Socket
                 case "Collect_Inventory":
                     var t = new Thread(RunInventory);
                     t.Start();
+                    
+                    break;
+
+                case "Current_Users":
+                    var cu = new Thread(GetLoggedInUsers);
+                    cu.Start();
+                    break;
+
+                case "Get_Status":
+                    var gs = new Thread(GetStatus);
+                    gs.Start();
                     break;
 
                 case "Message":
@@ -37,6 +48,7 @@ namespace Toec_Services.Socket
                         var m = new Thread(() => RunMessage(message.Message, message.Title, localPort, message.Timeout));
                         m.Start();
                     }
+                    new APICall().PolicyApi.UpdateLastSocketResult(new DtoStringResponse() { Value = "Message Sent" });
                     break;
 
                 case "Force_Checkin":
@@ -56,8 +68,8 @@ namespace Toec_Services.Socket
                     s.Start();
                     break;
 
-                case "Start_Mesh":
-                    var sm = new Thread(() => RunStartMesh());
+                case "Start_Remote_Control":
+                    var sm = new Thread(() => RunStartRemoteControl());
                     sm.Start();
                     break;
 
@@ -73,23 +85,26 @@ namespace Toec_Services.Socket
             }
         }
 
-        private void RunStartMesh()
+        private void RunStartRemoteControl()
         {
-            new RemoteAccess.Install();
+            new StartRemoteControl().Run();
         }
 
         private void RunWakeup(DtoWolTask wolTask)
         {
+            new APICall().PolicyApi.UpdateLastSocketResult(new DtoStringResponse() { Value = "WOL Task Started" });
             ServiceWolRelay.WakeUp(wolTask);
         }
 
         private void RunInventory()
         {
+            new APICall().PolicyApi.UpdateLastSocketResult(new DtoStringResponse() { Value = "Inventory Collection Started" });
             new ModuleInventory().Run();
         }
 
         private void RunCheckin()
         {
+            new APICall().PolicyApi.UpdateLastSocketResult(new DtoStringResponse() { Value = "Force Checkin Started" });
             new ServiceTriggerAction().Checkin();
         }
 
@@ -100,6 +115,7 @@ namespace Toec_Services.Socket
 
         private void RunReboot(string delay)
         {
+            new APICall().PolicyApi.UpdateLastSocketResult(new DtoStringResponse() { Value = "Reboot Initiated" });
             new ServiceUserTracker().LogoutAllUsers();
             new ServiceAppMonitor().CloseAllOpen();
             System.Diagnostics.Process.Start("shutdown.exe", "/r /t " + delay);
@@ -107,9 +123,28 @@ namespace Toec_Services.Socket
 
         private void RunShutdown(string delay)
         {
+            new APICall().PolicyApi.UpdateLastSocketResult(new DtoStringResponse() { Value = "Shutdown Initiated" });
             new ServiceUserTracker().LogoutAllUsers();
             new ServiceAppMonitor().CloseAllOpen();
             System.Diagnostics.Process.Start("shutdown.exe", "/s /t " + delay);
+        }
+
+        private void GetLoggedInUsers()
+        {
+            var listUsers = new ServiceUserLogins().GetUsersLoggedIn();
+            var users = string.Empty;
+            foreach (var user in listUsers)
+            {
+                users += user + ",";
+            }
+            if (string.IsNullOrEmpty(users))
+                users = "There Are No Users Currently Logged On";
+            new APICall().PolicyApi.UpdateLastSocketResult(new DtoStringResponse() { Value = users.Trim(',') });
+        }
+
+        public void GetStatus()
+        {
+            new APICall().PolicyApi.UpdateLastSocketResult(new DtoStringResponse() { Value = "Connected" });
         }
     }
 }

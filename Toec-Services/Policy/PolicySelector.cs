@@ -581,6 +581,8 @@ namespace Toec_Services.Policy
                         policy.WuType != EnumPolicy.WuType.MicrosoftSkipUpgrades &&
                         policy.WuType != EnumPolicy.WuType.Wsus && policy.WuType != EnumPolicy.WuType.WsusSkipUpgrades)
                         return false;
+                    if (policy.RemoteAccess != EnumPolicy.RemoteAccess.Disabled && policy.RemoteAccess != EnumPolicy.RemoteAccess.Enabled && policy.RemoteAccess != EnumPolicy.RemoteAccess.NotConfigured && policy.RemoteAccess != EnumPolicy.RemoteAccess.ForceReinstall)
+                        return false;
                     if (policy.Condition.Guid != null)
                     {
                         if (policy.ConditionFailedAction != EnumCondition.FailedAction.MarkFailed && policy.ConditionFailedAction != EnumCondition.FailedAction.MarkNotApplicable

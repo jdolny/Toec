@@ -209,9 +209,18 @@ namespace Toec_Services.Policy
                 }
             }
 
+            //Check if install of remote access needs cached
+            var remotelyNeedsCached = false;
+            if (_policiesToRun.Policies.Any(x => x.RemoteAccess == EnumPolicy.RemoteAccess.ForceReinstall))
+                remotelyNeedsCached = true;
+            else if (new ServiceSystemService().IsRemotelyInstalled())
+                remotelyNeedsCached = false;
+            else if (_policiesToRun.Policies.Any(x => x.RemoteAccess == EnumPolicy.RemoteAccess.Enabled))
+                remotelyNeedsCached = true;
+
             //cache all policies first if any need cached
             if (_policiesToRun.Policies.Any(x =>
-                x.SoftwareModules.Any() || x.FileCopyModules.Any() ||  x.WuModules.Any() || x.ScriptModules.Any() || x.CommandModules.Any()) || conditionNeedsCached || _policiesToRun.Policies.Any(x => x.Condition.Guid != null))
+                x.SoftwareModules.Any() || x.FileCopyModules.Any() ||  x.WuModules.Any() || x.ScriptModules.Any() || x.CommandModules.Any()) || conditionNeedsCached || _policiesToRun.Policies.Any(x => x.Condition.Guid != null) || remotelyNeedsCached)
             {
                 //grab a download slot
                 Logger.Debug("Obtaining A Download Connection.");

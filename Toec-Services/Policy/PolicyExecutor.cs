@@ -71,6 +71,9 @@ namespace Toec_Services.Policy
 
                 if (_policy.WuType != EnumPolicy.WuType.Disabled)
                     ModuleWuManager.InstallAllUpdates(_policy.WuType);
+
+                if (_policy.RemoteAccess == EnumPolicy.RemoteAccess.Enabled || _policy.RemoteAccess == EnumPolicy.RemoteAccess.Disabled || _policy.RemoteAccess == EnumPolicy.RemoteAccess.ForceReinstall)
+                    new ModuleRemoteAccess(_policy).Run();
             }
 
             var orderCounter = -1;
