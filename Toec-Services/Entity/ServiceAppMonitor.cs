@@ -64,7 +64,7 @@ namespace Toec_Services.Entity
             foreach (var e in events)
             {
                 if (string.IsNullOrEmpty(e.StartDateTime)) continue;
-                var dateTime = Convert.ToDateTime(e.StartDateTime);
+                var dateTime = Convert.ToDateTime(e.StartDateTime,CultureInfo.InvariantCulture);
                 var deleteThreshold = DateTime.UtcNow - TimeSpan.FromDays(7);
                 if (dateTime < deleteThreshold)
                 {
@@ -149,12 +149,12 @@ namespace Toec_Services.Entity
                 var path = g.Path;
                 if (startTime == null || userName == null || path == null || endTime == null) continue;
 
-                var dateStartTime = Convert.ToDateTime(startTime);
-                var dateEndTime = Convert.ToDateTime(endTime);
+                var dateStartTime = Convert.ToDateTime(startTime,CultureInfo.InvariantCulture);
+                var dateEndTime = Convert.ToDateTime(endTime,CultureInfo.InvariantCulture);
                 foreach (var p in allEvents.Where(x => x.Path.Equals(path) && x.UserName.Equals(userName)))
                 {
 
-                    if (dateStartTime > Convert.ToDateTime(p.StartDateTime) && dateEndTime < Convert.ToDateTime(p.EndDateTime))
+                    if (dateStartTime > Convert.ToDateTime(p.StartDateTime,CultureInfo.InvariantCulture) && dateEndTime < Convert.ToDateTime(p.EndDateTime,CultureInfo.InvariantCulture))
                     {
                         _uow.AppMonitorRepository.Delete(g.Id);
                         _uow.Save();
@@ -174,7 +174,7 @@ namespace Toec_Services.Entity
             {
                 try
                 {
-                    var appStartTime = Convert.ToDateTime(p.StartDateTime);
+                    var appStartTime = Convert.ToDateTime(p.StartDateTime,CultureInfo.InvariantCulture);
                     if (appStartTime > serviceStartTime)
                     {
                         p.EndDateTime = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);

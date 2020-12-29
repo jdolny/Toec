@@ -81,7 +81,7 @@ namespace Toec_Services.Entity
             foreach (var e in events)
             {
                 if (string.IsNullOrEmpty(e.LoginDateTime)) continue;
-                var dateTime = Convert.ToDateTime(e.LoginDateTime);
+                var dateTime = Convert.ToDateTime(e.LoginDateTime,CultureInfo.InvariantCulture);
                 var deleteThreshold = DateTime.UtcNow - TimeSpan.FromDays(14);
                 if (dateTime < deleteThreshold)
                 {
