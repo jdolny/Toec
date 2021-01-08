@@ -164,11 +164,20 @@ namespace Toec_Services.Policy
             Logger.Info("Completed Submitting Policy Results");
         }
 
-        public bool Run()
+        public bool Run(DtoClientPolicy singleModulePolicy = null)
         {
-            _policiesToRun = _trigger == EnumPolicy.Trigger.Login
-                ? new APICall().LocalApi.GetLoginPolicies(Environment.UserDomainName + "\\" + Environment.UserName)
-                : new PolicySelector(_trigger, Environment.UserDomainName + "\\" + Environment.UserName).GetPoliciesToExecute();
+            if (singleModulePolicy == null)
+            {
+                _policiesToRun = _trigger == EnumPolicy.Trigger.Login
+                    ? new APICall().LocalApi.GetLoginPolicies(Environment.UserDomainName + "\\" + Environment.UserName)
+                    : new PolicySelector(_trigger, Environment.UserDomainName + "\\" + Environment.UserName).GetPoliciesToExecute();
+            }
+            else
+            {
+                _policiesToRun = new DtoTriggerResponse();
+                _policiesToRun.Policies.Add(singleModulePolicy);
+            }
+
             if (_policiesToRun == null)
             {
                 Logger.Error("Error Trying To Parse Policies. Aborting Trigger: " + _trigger);

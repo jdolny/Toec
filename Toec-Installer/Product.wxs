@@ -183,11 +183,6 @@
               Name="Toec-LocalApi.dll" KeyPath="yes" />
       </Component>
 
-      <Component Id="ToecRemoteApi" Guid="b38601a9-839b-41b6-b33d-ddb98f7e87e6">
-        <File Source="$(var.serviceSourcePath)Toec-RemoteApi.dll" Id="ToecRemoteApi"
-              Name="Toec-RemoteApi.dll" KeyPath="yes" />
-      </Component>
-
       <Component Id="ToecServices" Guid="c0fc971b-b318-4325-849e-ed5d090e7d6f">
         <File Source="$(var.serviceSourcePath)Toec-Services.dll" Id="ToecServices"
               Name="Toec-Services.dll" KeyPath="yes" />

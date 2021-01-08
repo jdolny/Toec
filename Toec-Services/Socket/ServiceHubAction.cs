@@ -2,14 +2,17 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Toec_Common.Dto;
+using Toec_Common.Modules;
 using Toec_Services.ApiCall;
 using Toec_Services.Entity;
+using Toec_Services.Policy;
 using Toec_Services.Policy.Modules;
 
 namespace Toec_Services.Socket
@@ -79,10 +82,50 @@ namespace Toec_Services.Socket
                     w.Start();
                     break;
 
+                case "Run_Module":
+                    var policy = JsonConvert.DeserializeObject<DtoClientPolicy>(action.Message);
+                    var rsm = new Thread(() => RunSingleModule(policy));
+                    rsm.Start();
+                    break;
+
+                case "Logs":
+                    var logType = action.Message;
+                    var l = new Thread(() => SendLog(logType));
+                    l.Start();
+                    break;
+
                 default:
                     Logger.Info("Action Was Not Recognized.");
                     break;
             }
+        }
+
+        private void SendLog(string logType)
+        {
+            var path = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+            path = Path.Combine(path, "Toec", "logs",logType);
+            try
+            {
+                var log = File.ReadLines(path).Reverse().Take(10000).Reverse().ToList();
+
+                var sb = new StringBuilder();
+                foreach (var line in log)
+                {
+                    sb.Append(line);
+                    sb.Append(Environment.NewLine);
+                }
+                new APICall().PolicyApi.UpdateLastSocketResult(new DtoStringResponse() { Value = sb.ToString() });
+            }
+            catch
+            {
+                new APICall().PolicyApi.UpdateLastSocketResult(new DtoStringResponse() { Value = "Error: Could Not Open Log" });
+            }
+        }
+        private void RunSingleModule(DtoClientPolicy policy)
+        {
+            new APICall().PolicyApi.UpdateLastSocketResult(new DtoStringResponse() { Value = "Instant Module Started Successfully" });
+            new PolicyRunner(Toec_Common.Enum.EnumPolicy.Trigger.Checkin).Run(policy);
+           
         }
 
         private void RunStartRemoteControl()
