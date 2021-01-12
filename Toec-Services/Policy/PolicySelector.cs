@@ -778,6 +778,7 @@ namespace Toec_Services.Policy
             {
                 if (disposing)
                 {
+                    if(_policyHistoryServices != null)
                     _policyHistoryServices.Dispose();
                 }
             }

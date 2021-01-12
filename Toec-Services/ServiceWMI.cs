@@ -37,6 +37,7 @@ namespace Toec_Services
 
             if (disposing)
             {
+                if(moc != null)
                 moc.Dispose();
             }
 
@@ -126,13 +127,17 @@ namespace Toec_Services
             var mScope = new ManagementScope(_scope);
             var oQuery = new ObjectQuery(_query);
 
-            using (var objectSearcher = new ManagementObjectSearcher(mScope, oQuery))
+            try
             {
-                objectSearcher.Options.BlockSize = 10;
-                objectSearcher.Options.ReturnImmediately = true;
-                objectSearcher.Options.Timeout = TimeSpan.FromSeconds(30);
-                moc = objectSearcher.Get();
+                using (var objectSearcher = new ManagementObjectSearcher(mScope, oQuery))
+                {
+                    objectSearcher.Options.BlockSize = 10;
+                    objectSearcher.Options.ReturnImmediately = true;
+                    objectSearcher.Options.Timeout = TimeSpan.FromSeconds(30);
+                    moc = objectSearcher.Get();
+                }
             }
+            catch { }
         }
     }
 }

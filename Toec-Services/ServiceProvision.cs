@@ -443,6 +443,7 @@ namespace Toec_Services
             {
                 if (disposing)
                 {
+                    if(_serviceSetting != null)
                     _serviceSetting.Dispose();
                 }
             }

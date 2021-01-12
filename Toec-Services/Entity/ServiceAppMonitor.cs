@@ -64,12 +64,16 @@ namespace Toec_Services.Entity
             foreach (var e in events)
             {
                 if (string.IsNullOrEmpty(e.StartDateTime)) continue;
-                var dateTime = Convert.ToDateTime(e.StartDateTime,CultureInfo.InvariantCulture);
-                var deleteThreshold = DateTime.UtcNow - TimeSpan.FromDays(7);
-                if (dateTime < deleteThreshold)
+                try
                 {
-                    _uow.AppMonitorRepository.Delete(e.Id);
+                    var dateTime = Convert.ToDateTime(e.StartDateTime, CultureInfo.InvariantCulture);
+                    var deleteThreshold = DateTime.UtcNow - TimeSpan.FromDays(7);
+                    if (dateTime < deleteThreshold)
+                    {
+                        _uow.AppMonitorRepository.Delete(e.Id);
+                    }
                 }
+                catch { }
             }
 
             _uow.Save();
@@ -149,18 +153,22 @@ namespace Toec_Services.Entity
                 var path = g.Path;
                 if (startTime == null || userName == null || path == null || endTime == null) continue;
 
-                var dateStartTime = Convert.ToDateTime(startTime,CultureInfo.InvariantCulture);
-                var dateEndTime = Convert.ToDateTime(endTime,CultureInfo.InvariantCulture);
-                foreach (var p in allEvents.Where(x => x.Path.Equals(path) && x.UserName.Equals(userName)))
+                try
                 {
-
-                    if (dateStartTime > Convert.ToDateTime(p.StartDateTime,CultureInfo.InvariantCulture) && dateEndTime < Convert.ToDateTime(p.EndDateTime,CultureInfo.InvariantCulture))
+                    var dateStartTime = Convert.ToDateTime(startTime, CultureInfo.InvariantCulture);
+                    var dateEndTime = Convert.ToDateTime(endTime, CultureInfo.InvariantCulture);
+                    foreach (var p in allEvents.Where(x => x.Path.Equals(path) && x.UserName.Equals(userName)))
                     {
-                        _uow.AppMonitorRepository.Delete(g.Id);
-                        _uow.Save();
-                        break;
+
+                        if (dateStartTime > Convert.ToDateTime(p.StartDateTime, CultureInfo.InvariantCulture) && dateEndTime < Convert.ToDateTime(p.EndDateTime, CultureInfo.InvariantCulture))
+                        {
+                            _uow.AppMonitorRepository.Delete(g.Id);
+                            _uow.Save();
+                            break;
+                        }
                     }
                 }
+                catch { }
             }
 
             return new DtoActionResult();
@@ -245,7 +253,8 @@ namespace Toec_Services.Entity
             {
                 if (disposing)
                 {
-                    _uow.Dispose();
+                    if(_uow != null)
+                        _uow.Dispose();
                 }
             }
             this.disposed = true;

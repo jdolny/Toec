@@ -8,13 +8,15 @@ namespace Toec_Services.InventorySearchers
     {
         public void Search(DtoInventoryCollection collection)
         {
+
             List<DtoAntiVirusWmi> av;
-            using (var wmi = new ServiceWmi<DtoAntiVirusWmi>(new DtoAntiVirusWmi(),"root\\SecurityCenter2"))
+            using (var wmi = new ServiceWmi<DtoAntiVirusWmi>(new DtoAntiVirusWmi(), "root\\SecurityCenter2"))
             {
                 av = wmi.GetObjectList();
             }
 
             var avInventoryList = new List<DtoAntiVirusInventory>();
+
             foreach (var a in av)
             {
                 var avInventory = new DtoAntiVirusInventory();

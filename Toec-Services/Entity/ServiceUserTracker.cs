@@ -81,12 +81,16 @@ namespace Toec_Services.Entity
             foreach (var e in events)
             {
                 if (string.IsNullOrEmpty(e.LoginDateTime)) continue;
-                var dateTime = Convert.ToDateTime(e.LoginDateTime,CultureInfo.InvariantCulture);
-                var deleteThreshold = DateTime.UtcNow - TimeSpan.FromDays(14);
-                if (dateTime < deleteThreshold)
+                try
                 {
-                    _uow.UserLoginRepository.Delete(e.Id);
+                    var dateTime = Convert.ToDateTime(e.LoginDateTime, CultureInfo.InvariantCulture);
+                    var deleteThreshold = DateTime.UtcNow - TimeSpan.FromDays(14);
+                    if (dateTime < deleteThreshold)
+                    {
+                        _uow.UserLoginRepository.Delete(e.Id);
+                    }
                 }
+                catch { }
             }
 
             _uow.Save();
@@ -107,6 +111,7 @@ namespace Toec_Services.Entity
             {
                 if (disposing)
                 {
+                    if(_uow != null)
                     _uow.Dispose();
                 }
             }

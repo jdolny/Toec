@@ -99,7 +99,7 @@ namespace Toec_Services.Policy.Modules
             {
                 Logger.Info("Removing Remote Access Service");
                 var module = new DtoClientCommandModule();
-                module.Command = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),"Remotely", "Remotely_Installer.exe");
+                module.Command = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Remotely", "Remotely_Installer.exe");
                 module.Guid = "99999999-9999-9999-9999-999999999999";
                 module.DisplayName = "Remove Remotely";
                 module.Timeout = 5;
@@ -108,6 +108,15 @@ namespace Toec_Services.Policy.Modules
                 module.SuccessCodes = new List<string>() { "0" };
                 module.WorkingDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Remotely");
                 module.Arguments = "-uninstall -quiet";
+
+                //remove remote access id from server
+                var res = new ApiCall.APICall().PolicyApi.UpdateRemoteAccessId(new RemotelyConnectionInfo() { DeviceID = "", Host = "", OrganizationID = "", ServerVerificationToken ="" });
+                if (res != null)
+                {
+                    if (!res.Success)
+                        Logger.Error("Could Not Remmove Client Remote Access Id");
+                }
+
                 var result = new ModuleCommandManager(module).Run();
                 if (!result.Success)
                     Logger.Error(result.ErrorMessage);

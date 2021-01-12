@@ -45,6 +45,7 @@ namespace Toec_Services.Entity
             {
                 if (disposing)
                 {
+                    if(_uow != null)
                     _uow.Dispose();
                 }
             }

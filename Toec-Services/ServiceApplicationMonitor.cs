@@ -166,10 +166,18 @@ namespace Toec_Services
 
             if (disposing)
             {
-                _creationWatcher.Stop();
-                _deletionWatcher.Stop();
-                _creationWatcher.Dispose();
-                _deletionWatcher.Dispose();
+                if(_creationWatcher != null)
+                {
+                    _creationWatcher.Stop();
+                    _creationWatcher.Dispose();
+                }
+                if(_deletionWatcher != null)
+                {
+                    _deletionWatcher.Stop();
+                    _deletionWatcher.Dispose();
+                }
+              
+               
             }
 
             _disposed = true;

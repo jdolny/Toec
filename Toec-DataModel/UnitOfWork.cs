@@ -98,6 +98,7 @@ namespace Toec_DataModel
             {
                 if (disposing)
                 {
+                    if(_context != null)
                     _context.Dispose();
                 }
             }

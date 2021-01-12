@@ -143,8 +143,11 @@ namespace Toec_Services
             {
                 if (disposing)
                 {
+                    if(_checkinTimer != null)
                     _checkinTimer.Dispose();
+                    if(_startupRetryTime != null)
                     _startupRetryTime.Dispose();
+                    if(_hubConnection != null)
                     _hubConnection.Dispose();
                 }
             }
