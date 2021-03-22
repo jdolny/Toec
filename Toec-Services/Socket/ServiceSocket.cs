@@ -6,6 +6,7 @@ using System.Security.Cryptography.X509Certificates;
 using Toec_Common.Dto;
 using Toec_Services.Entity;
 using System.Runtime.Caching;
+using System.Timers;
 
 namespace Toec_Services.Socket
 {
@@ -15,6 +16,8 @@ namespace Toec_Services.Socket
         private static readonly ILog Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private string _logId;
         private readonly ulong requestMaxAgeInSeconds = 600; //5 mins
+        public static Timer _timer;
+        private bool _socketConnecting = false;
 
         public ServiceSocket(HubConnection hubConnection)
         {
@@ -31,10 +34,13 @@ namespace Toec_Services.Socket
             }
             else
             {
-                //reconnect socket
-                _hubConnection.Stop();
-                Logger.Debug("Re-establishing Connection To Com Server Web Socket.");
-                StartWebSocket();
+                //reconnect socket on checkin if not already connected
+                if (_hubConnection.State == ConnectionState.Disconnected)
+                {
+                    Logger.Debug("Re-establishing Connection To Com Server Web Socket.");
+                    if (!_socketConnecting)
+                        StartWebSocket();
+                }
             }
 
             return _hubConnection;
@@ -42,6 +48,17 @@ namespace Toec_Services.Socket
 
         private void StartWebSocket()
         {
+            _socketConnecting = true;
+
+            if(_timer == null)
+            {
+                _timer = new Timer();
+                _timer.Elapsed += OnTimedEvent;
+                _timer.Interval = 30000;
+                _timer.Enabled = true;
+                OnTimedEvent(null, null);
+            }         
+
             var deviceThumbprint = new ServiceSetting().GetSetting("device_thumbprint");
             var deviceCert = ServiceCertificate.GetCertificateFromStore(deviceThumbprint.Value, StoreName.My);
             if (deviceCert == null)
@@ -58,6 +75,12 @@ namespace Toec_Services.Socket
                 return;
             }
 
+            if(_hubConnection != null)
+            {
+                _hubConnection.Stop();
+                _hubConnection.Dispose();
+            }
+
             _hubConnection = new HubConnection(DtoGobalSettings.ComServer);
             _hubConnection.Headers.Add("certificate", Convert.ToBase64String(deviceCert.GetRawCertData()));
             _hubConnection.Headers.Add("computerGuid", DtoGobalSettings.ClientIdentity.Guid);
@@ -65,7 +88,6 @@ namespace Toec_Services.Socket
 
             var hubProxy = _hubConnection.CreateHubProxy("ActionHub");
             _hubConnection.Error += HubConnection_Error;
-            _hubConnection.StateChanged += _hubConnection_StateChanged;
             _hubConnection.Start().ContinueWith(task =>
             {
                 if (task.IsFaulted)
@@ -73,18 +95,23 @@ namespace Toec_Services.Socket
                     Logger.Info("Could Not Connect To Web Socket");
                     Logger.Error(task.Exception.GetBaseException());
                     Logger.Info("Server Push Events Will Not Be Available");
+                    _socketConnecting = false;
                     return;
                 }
                 else
                 {
                     Logger.Debug("Web Socket Connected.  Connection ID: " + _hubConnection.ConnectionId);
                     var v = hubProxy.Invoke<DtoSocketServerVerify>("VerifyServer").Result;
-                    if(isValidRequest(v))
+                    if (isValidRequest(v))
+                    {
                         hubProxy.On<DtoHubAction>("ClientAction", hubAction => new ServiceHubAction().Process(hubAction));
+                        _socketConnecting = false;
+                    }
                     else
                     {
                         Logger.Debug("Socket Server Verification Failed.  Disconnecting.");
                         _hubConnection.Stop();
+                        _socketConnecting = false;
                     }
 
                 }
@@ -93,11 +120,13 @@ namespace Toec_Services.Socket
 
         }
 
-        private void _hubConnection_StateChanged(StateChange obj)
+        private void OnTimedEvent(object source, ElapsedEventArgs e)
         {
-            if (obj.NewState == ConnectionState.Disconnected)
+            if(_hubConnection != null)
             {
-                StartWebSocket();
+                if (_hubConnection.State == ConnectionState.Disconnected)
+                    if(!_socketConnecting)
+                        StartWebSocket();
             }
         }
 
