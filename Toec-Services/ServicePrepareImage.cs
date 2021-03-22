@@ -8,10 +8,10 @@ namespace Toec_Services
     public class ServicePrepareImage
     {
         private static readonly ILog Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
-        public bool Run()
+        private bool _skipHibernation;
+        public bool Run(string[] args)
         {
-            Logger.Info("Preparing Toec For Image: ");
+            Logger.Info("Preparing Computer For Image: ");
             Logger.Info("Checking Toec Service");
             var servResult = new ServiceSystemService().StopToec();
             if (!servResult)
@@ -20,15 +20,38 @@ namespace Toec_Services
                 return false;
             }
 
-            //Wait another 30 secs for anything to finish
-            Logger.Info("Resetting Toec ...");
-            System.Threading.Thread.Sleep(30000);
+            foreach(var arg in args)
+            {
+                if (arg.Equals("--prepareImage", StringComparison.InvariantCultureIgnoreCase))
+                    continue;
+                else if (arg.Equals("skip_hibernation", StringComparison.InvariantCultureIgnoreCase))
+                    _skipHibernation = true;
+
+            }
+
+            DisableHibernation();
+            ResetToec();
+
+            Logger.Info("Prepare Image Finished");
+            return true;
+        }
+
+        private void DisableHibernation()
+        {
+            if (_skipHibernation) return;
+            Logger.Info("Disabling Hibernation");
+            System.Diagnostics.Process.Start("powercfg.exe", "/h off ");
+        }
+
+        private void ResetToec()
+        {
+            Logger.Info("Resetting Toec");
 
             ServiceCertificate.DeleteAllDeviceCertificates();
             ServiceCertificate.DeleteIntermediate();
 
             var serviceSetting = new ServiceSetting();
-          
+
             var installationId = serviceSetting.GetSetting("installation_id");
             installationId.Value = null;
             serviceSetting.UpdateSettingValue(installationId);
@@ -69,12 +92,7 @@ namespace Toec_Services
             if (!updatedStatus.Value.Equals("0") && !string.IsNullOrEmpty(updatedId.Value))
             {
                 Logger.Error("Prepare Image Failed.  Could Not Reset ID's");
-                return false;
             }
-
-
-            Logger.Info("Toec Prepare Image Finished");
-            return true;
         }
     }
 }
