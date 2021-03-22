@@ -99,6 +99,11 @@ namespace Toec_Services
             var service = new ServiceController("Toec");
             try
             {
+                if (service.Status == ServiceControllerStatus.Stopped)
+                    return true;
+                var timeout = TimeSpan.FromMilliseconds(30000);
+                service.Stop();
+                service.WaitForStatus(ServiceControllerStatus.Stopped, timeout);
                 if (service.Status != ServiceControllerStatus.Stopped)
                     return false;
                 else

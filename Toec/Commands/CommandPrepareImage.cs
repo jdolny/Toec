@@ -6,6 +6,11 @@ namespace Toec.Commands
 {
     public class CommandPrepareImage : ICommand
     {
+        private readonly string[] _args;
+        public CommandPrepareImage(string[] args)
+        {
+            _args = args;
+        }
         public void Run()
         {
             if (!HasAdministrativeRight())
@@ -15,7 +20,7 @@ namespace Toec.Commands
             else
             {
                 Console.WriteLine("Toec Prepare Image Initiated");
-                new ServicePrepareImage().Run();
+                new ServicePrepareImage().Run(_args);
             }
         }
 

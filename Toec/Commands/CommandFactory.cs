@@ -19,7 +19,7 @@
                 case "--resetPartial":
                     return new CommandResetPartial();
                 case "--prepareImage":
-                    return new CommandPrepareImage();
+                    return new CommandPrepareImage(args);
                 case "--resetKey":
                     return new CommandResetKey(args);
                 case "--logLevel":

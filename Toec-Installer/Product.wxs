@@ -4,8 +4,8 @@
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension"
      xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
 
-  <?define Version = "1.3.0.0" ?>
-  <?define DisplayVersion = "1.3.0" ?>
+  <?define Version = "1.3.3.0" ?>
+  <?define DisplayVersion = "1.3.3" ?>
   <?if $(sys.BUILDARCH)=x64?>
   <?define Win64 = "yes" ?>
   <?define msiProductId = "4df95de6-02f2-48ae-9354-d312d2458d60" ?>

@@ -124,6 +124,7 @@
     <Compile Include="ServiceApplicationMonitor.cs" />
     <Compile Include="ServiceCertificate.cs" />
     <Compile Include="Crypto\ServiceDP.cs" />
+    <Compile Include="ServiceDomain.cs" />
     <Compile Include="Socket\ServiceHubAction.cs" />
     <Compile Include="ServiceLogLevel.cs" />
     <Compile Include="ServicePortSelector.cs" />
