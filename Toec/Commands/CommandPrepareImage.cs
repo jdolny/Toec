@@ -1,9 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Security.Principal;
+using Toec_Common.Dto;
 using Toec_Services;
 
 namespace Toec.Commands
 {
+    
     public class CommandPrepareImage : ICommand
     {
         private readonly string[] _args;
@@ -11,6 +14,8 @@ namespace Toec.Commands
         {
             _args = args;
         }
+
+        
         public void Run()
         {
             if (!HasAdministrativeRight())
@@ -20,7 +25,9 @@ namespace Toec.Commands
             else
             {
                 Console.WriteLine("Toec Prepare Image Initiated");
-                new ServicePrepareImage().Run(_args);
+                var imagePrepOptions = new DtoImagePrepOptions();
+                imagePrepOptions.ResetToec = true;
+                new ServicePrepareImage().Run(imagePrepOptions);
             }
         }
 

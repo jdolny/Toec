@@ -50,6 +50,7 @@
     <Compile Include="Dto\DtoDownloadConnectionResult.cs" />
     <Compile Include="Dto\DtoDownloadConRequest.cs" />
     <Compile Include="Dto\DtoHubAction.cs" />
+    <Compile Include="Dto\DtoImagePrepOptions.cs" />
     <Compile Include="Dto\DtoImpersonationAccount.cs" />
     <Compile Include="Dto\DtoIpInfo.cs" />
     <Compile Include="Dto\DtoMessage.cs" />

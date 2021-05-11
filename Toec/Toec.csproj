@@ -113,14 +113,17 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Data.SQLite, Version=1.0.109.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Data.SQLite.Core.1.0.109.1\lib\net46\System.Data.SQLite.dll</HintPath>
     </Reference>
     <Reference Include="System.Data.SQLite.EF6, Version=1.0.109.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Data.SQLite.EF6.1.0.109.0\lib\net46\System.Data.SQLite.EF6.dll</HintPath>
     </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\CommandConsole.cs" />
@@ -128,6 +131,7 @@
     <Compile Include="Commands\CommandInstall.cs" />
     <Compile Include="Commands\CommandComServer.cs" />
     <Compile Include="Commands\CommandLogLevel.cs" />
+    <Compile Include="Commands\CommandPrepareImageGui.cs" />
     <Compile Include="Commands\CommandPrepareImage.cs" />
     <Compile Include="Commands\CommandResetPartial.cs" />
     <Compile Include="Commands\CommandResetKey.cs" />
@@ -165,6 +169,10 @@
     <ProjectReference Include="..\Toec-DataModel\Toec-DataModel.csproj">
       <Project>{2d919906-3746-42b5-b17c-2595746e8e38}</Project>
       <Name>Toec-DataModel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Toec-ImagePrep\Toec-ImagePrep.csproj">
+      <Project>{1f10c5dd-b86e-4726-a29b-507f7901113f}</Project>
+      <Name>Toec-ImagePrep</Name>
     </ProjectReference>
     <ProjectReference Include="..\Toec-LocalApi\Toec-LocalApi.csproj">
       <Project>{133f6b1b-ae60-43b2-a88f-e2184628df2c}</Project>

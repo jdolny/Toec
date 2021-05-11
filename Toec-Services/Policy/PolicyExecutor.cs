@@ -60,6 +60,12 @@ namespace Toec_Services.Policy
 
             if (_policy.Trigger != EnumPolicy.Trigger.Login)
             {
+                if (_policy.JoinDomain)
+                    ServiceDomain.JoinDomain(_policy.DomainName, _policy.DomainOU, _policy.DomainUser, _policy.DomainPassword);
+
+                if (_policy.ImagePrepCleanup)
+                    new ServicePrepareImage().Cleanup();
+
                 if (_policy.IsLoginTracker)
                     new ModuleUserLogins().Run();
 
