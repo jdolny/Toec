@@ -110,6 +110,29 @@ namespace Toec_Services.ApiCall
             return new ApiRequest().ExecuteSymKeyEncryption<DtoImpersonationAccount>(Request,string.Empty);
         }
 
+        public DtoDomainJoinCredentials GetDomainJoinCredentials()
+        {
+            Request.Method = Method.GET;
+            Request.Resource = string.Format("ProvisionedComm/{0}/GetDomainJoinCredentials/", Resource);
+            return new ApiRequest().ExecuteSymKeyEncryption<DtoDomainJoinCredentials>(Request, string.Empty);
+        }
+
+        public bool AddToFirstRunGroup()
+        {
+            Request.Method = Method.GET;
+            Request.Resource = string.Format("ProvisionedComm/{0}/AddToFirstRunGroup/", Resource);
+            var result = new ApiRequest().ExecuteSymKeyEncryption<DtoBoolResponse>(Request, string.Empty);
+            return result != null && result.Value;
+        }
+
+        public bool RemoveFromFirstRunGroup()
+        {
+            Request.Method = Method.GET;
+            Request.Resource = string.Format("ProvisionedComm/{0}/RemoveFromFirstRunGroup/", Resource);
+            var result = new ApiRequest().ExecuteSymKeyEncryption<DtoBoolResponse>(Request, string.Empty);
+            return result != null && result.Value;
+        }
+
         public DtoDownloadConnectionResult CreateDownloadConnection(DtoDownloadConRequest conRequest)
         {
             Request.Method = Method.POST;

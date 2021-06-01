@@ -23,19 +23,60 @@ namespace Toec_Services
             NETSETUP_ACCT_CREATE = 0x00000002,
         }
 
-        public static void JoinDomain(string domain, string OU, string account, string password)
+        public static bool JoinDomain(string OU)
         {
-            Logger.Info("Joining Domain " + domain);
+            var credentials = new ApiCall.APICall().PolicyApi.GetDomainJoinCredentials();
+            if (credentials == null)
+            {
+                Logger.Debug("Could Not Obtain Credentials To Join The Domain.");
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(OU))
+                OU = null; //set ou to null if it comes through as empty
+
+            Logger.Info("Joining Domain " + credentials.Domain);
+            Logger.Debug("Username: " + credentials.Username);
+            Logger.Debug("OU: " + OU);
             try
             {
-                var resultValue = NetJoinDomain(null, domain, OU, account, password, (JoinOptions.NETSETUP_JOIN_DOMAIN | JoinOptions.NETSETUP_ACCT_CREATE));
-                Logger.Info("Successfully Joined Domain");
+                var resultValue = NetJoinDomain(null, credentials.Domain, OU, credentials.Username, credentials.Password, (JoinOptions.NETSETUP_JOIN_DOMAIN | JoinOptions.NETSETUP_ACCT_CREATE));
+                if (resultValue == 0 || resultValue == 2691) //2691 = already joined, return success as to not hold up the policy
+                {
+                    Logger.Info("Successfully Joined Domain");
+                    return true;
+                }
+                else if(resultValue == 2224)
+                {
+                    Logger.Info("Computer Already Exists In A Different OU.  Cannot Join To Specified OU");
+                    resultValue = NetJoinDomain(null, credentials.Domain, null, credentials.Username, credentials.Password, (JoinOptions.NETSETUP_JOIN_DOMAIN | JoinOptions.NETSETUP_ACCT_CREATE));
+                    if (resultValue == 0)
+                    {
+                        Logger.Info("Successfully Joined Domain");
+                        return true;
+                    }
+                    else
+                    {
+                        Logger.Error("Domain Join Failed.");
+                        Logger.Info("Domain Join Result: " + resultValue);
+                        return false;
+                    }
+                }
+                else
+                {
+                    Logger.Error("Domain Join Failed.");
+                    Logger.Info("Domain Join Result: " + resultValue);
+                    return false;
+                }
+                   
+                
                 
             }
             catch (Exception ex)
             {
                 Logger.Error("Domain join failed.");
                 Logger.Error(ex.Message);
+                return false;
             }
         }
 

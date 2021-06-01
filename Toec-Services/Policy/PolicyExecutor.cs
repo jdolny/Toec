@@ -61,7 +61,13 @@ namespace Toec_Services.Policy
             if (_policy.Trigger != EnumPolicy.Trigger.Login)
             {
                 if (_policy.JoinDomain)
-                    ServiceDomain.JoinDomain(_policy.DomainName, _policy.DomainOU, _policy.DomainUser, _policy.DomainPassword);
+                {
+                    if(!ServiceDomain.JoinDomain(_policy.DomainOU))
+                    {
+                        _policyResult.PolicyResult = EnumPolicy.Result.Failed;
+                        return _policyResult;
+                    }
+                }
 
                 if (_policy.ImagePrepCleanup)
                     new ServicePrepareImage().Cleanup();

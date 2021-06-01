@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
@@ -290,6 +291,14 @@ namespace Toec_Services
             var settingProvisionStatus = _serviceSetting.GetSetting("provision_status");
             settingProvisionStatus.Value = Convert.ToInt16(confirmResult.ProvisionStatus).ToString();
             _serviceSetting.UpdateSettingValue(settingProvisionStatus);
+
+            //new provision, if image first run, add to first run group
+            if (File.Exists($"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Toec\\image_prepped"))
+            {
+                Logger.Debug("Found Image Prep File, Adding to First Run Group");
+                new APICall().PolicyApi.AddToFirstRunGroup();
+            }
+
             return EnumProvisionStatus.Status.Provisioned;
         }
 

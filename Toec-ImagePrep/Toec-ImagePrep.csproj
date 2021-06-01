@@ -136,6 +136,10 @@
       <Project>{a79b8475-e9e6-4f46-b5ae-84d406dee253}</Project>
       <Name>Toec-Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Toec-Services\Toec-Services.csproj">
+      <Project>{6a129a6d-de3a-4490-bbbd-63646b3b4256}</Project>
+      <Name>Toec-Services</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

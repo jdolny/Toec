@@ -32,10 +32,7 @@ namespace Toec_Common.Modules
         public bool IsLoginTracker { get; set; }
         public bool IsApplicationMonitor { get; set; }
         public bool JoinDomain { get; set; }
-        public string DomainUser { get; set; }
-        public string DomainPassword { get; set; }
         public string DomainOU { get; set; }
-        public string DomainName { get; set; }
         public bool ImagePrepCleanup { get; set; }
         public EnumPolicy.LogLevel LogLevel { get; set; }
         public string Name { get; set; }

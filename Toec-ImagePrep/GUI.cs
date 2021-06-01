@@ -4,16 +4,20 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Toec_Common.Dto;
+using Toec_Services;
+using Toec_Services.Entity;
 
 namespace Toec_ImagePrep
 {
     public partial class GUI : Form
     {
+        private DtoImagePrepOptions _imagePrepOptions;
 
         public GUI()
         {
@@ -23,7 +27,7 @@ namespace Toec_ImagePrep
             this.Padding = new Padding(3);
             this.Width = 400;
             this.BringToFront();
-            this.TopMost = true;
+            //this.TopMost = true;
             this.Focus();
             this.Activate();
 
@@ -33,13 +37,16 @@ namespace Toec_ImagePrep
             txtSetupComplete.Text = @"powercfg.exe /h off" + Environment.NewLine;
             txtSetupComplete.Text += @"del /Q /F c:\windows\system32\sysprep\unattend.xml" + Environment.NewLine;
             txtSetupComplete.Text += @"del /Q /F c:\windows\panther\unattend.xml" + Environment.NewLine;
-            txtSetupComplete.Text += @"pnputil.exe /add-driver c:\drivers\*.inf /subdirs /install";
+            txtSetupComplete.Text += @"pnputil.exe /add-driver c:\drivers\*.inf /subdirs /install" + Environment.NewLine;
+            txtSetupComplete.Text += "mkdir \"%ProgramFiles%\\Toec\"" + Environment.NewLine;
+            txtSetupComplete.Text += "copy NUL \"%ProgramFiles%\\Toec\\setupcompletecmd_complete\"" + Environment.NewLine;
 
 
         }
 
         private void btnApply_Click(object sender, EventArgs e)
         {
+            txtOutput.Text = "";
             var imagePrepOptions = new DtoImagePrepOptions();
             if (chkDisableHibernate.Checked)
                 imagePrepOptions.RunHibernate = true;
@@ -65,8 +72,8 @@ namespace Toec_ImagePrep
             if (chkResetToec.Checked)
                 imagePrepOptions.ResetToec = true;
 
-            Console.Write(JsonConvert.SerializeObject(imagePrepOptions));
-            this.Close();
+            Run(imagePrepOptions);
+
         }
 
 
@@ -80,6 +87,159 @@ namespace Toec_ImagePrep
         {
             Console.Write("");
             this.Close();
+        }
+
+        private void AppendLogText(string text)
+        {
+            txtOutput.Text += text + Environment.NewLine;
+        }
+
+        public bool Run(DtoImagePrepOptions imagePrepOptions)
+        {
+            if (imagePrepOptions == null)
+            {
+                AppendLogText("Image Prep Cancelled.");
+                return false;
+            }
+
+            if (imagePrepOptions.RunSysprep && string.IsNullOrEmpty(imagePrepOptions.SysprepAnswerPath))
+            {
+                AppendLogText("A Sysprep Answer File Was Not Defined.  Image Prep Cancelled");
+                return false;
+            }
+
+            AppendLogText("Preparing Computer For Image: ");
+            AppendLogText("Checking Toec Service");
+            var servResult = new ServiceSystemService().StopToec();
+            if (!servResult)
+            {
+                AppendLogText("Toec Service Must Be Stopped Before Preparing Image.");
+                return false;
+            }
+
+            _imagePrepOptions = imagePrepOptions;
+
+            DisableHibernation();
+            AddDriverRegistry();
+            EnableWinLogonBackground();
+            CreateSetupComplete();
+            ResetToec();
+            RunSysprep();
+
+            File.Create($"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Toec\\image_prepped");
+            AppendLogText("Prepare Image Finished");
+            return true;
+        }
+
+        private void CreateSetupComplete()
+        {
+            if (!_imagePrepOptions.CreateSetupComplete) return;
+            AppendLogText("Creating Setup Complete Script");
+            var winPath = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+            Directory.CreateDirectory(Path.Combine(winPath, "Setup", "Scripts"));
+            var scriptPath = Path.Combine(winPath, "Setup", "Scripts", "setupcomplete.cmd");
+            File.WriteAllText(scriptPath, _imagePrepOptions.SetupCompleteContents);
+            AppendLogText("Finished Creating Setup Complete Script");
+        }
+
+        private void AddDriverRegistry()
+        {
+            if (!_imagePrepOptions.AddDriverRegistry) return;
+            AppendLogText("Updating Registry DevicePath Locations.");
+            Microsoft.Win32.Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\", "DevicePath", "%SystemRoot%\\inf;c:\\drivers");
+            AppendLogText("Finished Updating Registry DevicePath Locations.");
+        }
+
+        private void RunSysprep()
+        {
+            if (!_imagePrepOptions.RunSysprep) return;
+            AppendLogText("Running Sysprep");
+            if (!string.IsNullOrEmpty(_imagePrepOptions.SysprepAnswerPath))
+            {
+                var winPath = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+                var sysPrepPath = Path.Combine(winPath, "System32", "Sysprep");
+                File.Copy(_imagePrepOptions.SysprepAnswerPath, Path.Combine(sysPrepPath, "unattend.xml"), true);
+                System.Diagnostics.Process.Start(Path.Combine(sysPrepPath, "sysprep.exe"), $"/oobe /generalize /shutdown /unattend:{Path.Combine(sysPrepPath, "unattend.xml")}");
+            }
+            AppendLogText("Finished Running Sysprep");
+
+        }
+
+        private void EnableWinLogonBackground()
+        {
+            if (!_imagePrepOptions.EnableFinalizingBackground) return;
+            AppendLogText("Setting finalizing background image.");
+            Microsoft.Win32.RegistryKey key;
+            key = Microsoft.Win32.Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\PersonalizationCSP");
+            key.SetValue("LockScreenImagePath", $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Toec\\finalizing_lock_image.png", Microsoft.Win32.RegistryValueKind.String);
+            key.SetValue("LockScreenImageUrl", $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Toec\\finalizing_lock_image.png", Microsoft.Win32.RegistryValueKind.String);
+            key.SetValue("DesktopImagePath", $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Toec\\finalizing_desktop_image.png", Microsoft.Win32.RegistryValueKind.String);
+            key.SetValue("DesktopImageUrl", $"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)}\\Toec\\finalizing_desktop_image.png", Microsoft.Win32.RegistryValueKind.String);
+            key.Close();
+            AppendLogText("Finished Setting finalizing background image.");
+        }
+
+        private void DisableHibernation()
+        {
+            if (!_imagePrepOptions.RunHibernate) return;
+            AppendLogText("Disabling Hibernation");
+            System.Diagnostics.Process.Start("powercfg.exe", "/h off ");
+            AppendLogText("Finished Disabling Hibernation");
+        }
+
+        private void ResetToec()
+        {
+            if (!_imagePrepOptions.ResetToec) return;
+            AppendLogText("Resetting Toec");
+
+            ServiceCertificate.DeleteAllDeviceCertificates();
+            ServiceCertificate.DeleteIntermediate();
+
+            var serviceSetting = new ServiceSetting();
+
+            var installationId = serviceSetting.GetSetting("installation_id");
+            installationId.Value = null;
+            serviceSetting.UpdateSettingValue(installationId);
+
+
+            var encryptionKey = serviceSetting.GetSetting("encryption_key");
+            encryptionKey.Value = null;
+            serviceSetting.UpdateSettingValue(encryptionKey);
+
+            var entropy = serviceSetting.GetSetting("entropy");
+            entropy.Value = null;
+            serviceSetting.UpdateSettingValue(entropy);
+
+            var computerIdentifier = serviceSetting.GetSetting("computer_identifier");
+            computerIdentifier.Value = null;
+            serviceSetting.UpdateSettingValue(computerIdentifier);
+
+            var deviceThumbprint = serviceSetting.GetSetting("device_thumbprint");
+            deviceThumbprint.Value = null;
+            serviceSetting.UpdateSettingValue(deviceThumbprint);
+
+            var intermediateThumbprint = serviceSetting.GetSetting("intermediate_thumbprint");
+            intermediateThumbprint.Value = null;
+            serviceSetting.UpdateSettingValue(intermediateThumbprint);
+
+            new PolicyHistoryServices().DeleteAll();
+            new ServiceUserTracker().DeleteAll();
+            new ServiceAppMonitor().DeleteAll();
+
+            var provisionStatus = serviceSetting.GetSetting("provision_status");
+            provisionStatus.Value = "0";
+            serviceSetting.UpdateSettingValue(provisionStatus);
+
+
+            var updatedStatus = serviceSetting.GetSetting("provision_status");
+            var updatedId = installationId = serviceSetting.GetSetting("installation_id");
+
+            if (!updatedStatus.Value.Equals("0") && !string.IsNullOrEmpty(updatedId.Value))
+            {
+                AppendLogText("Prepare Image Failed.  Could Not Reset ID's");
+            }
+
+            AppendLogText("Finished Resetting Toec");
         }
     }
 

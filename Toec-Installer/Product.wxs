@@ -274,6 +274,24 @@
         <File Source="extra_files\DBshell.db" Id="Database" Name="DBshell.db" KeyPath="yes" />
       </Component>
 
+      <Component Id="LockBG" Guid="*">
+        <File Source="extra_files\finalizing_lock_image.png" Id="LockBG" Name="finalizing_lock_image.png" KeyPath="yes" />
+      </Component>
+
+      <Component Id="DesktopBG" Guid="*">
+        <File Source="extra_files\finalizing_desktop_image.png" Id="DesktopBG" Name="finalizing_desktop_image.png" KeyPath="yes" />
+      </Component>
+
+       <Component Id="ToecImagePrep" Guid="*">
+        <File Source="$(var.serviceSourcePath)Toec-ImagePrep.exe" Id="ToecImagePrep" Name="Toec-ImagePrep.exe"
+              KeyPath="yes" />
+      </Component>
+
+      <Component Id="ToecImagePrepConfig" Guid="*">
+        <File Source="$(var.serviceSourcePath)Toec-ImagePrep.exe.config" Id="ToecImagePrepConfig" Name="Toec-ImagePrep.exe.config"
+              KeyPath="yes" />
+      </Component>
+      
       <Component Id="TrayConfigComponent" Guid="*">
         <File Source="$(var.traySourcePath)Toec-UI.exe" Id="ToecUI" Name="Toec-UI.exe"
               KeyPath="yes" />

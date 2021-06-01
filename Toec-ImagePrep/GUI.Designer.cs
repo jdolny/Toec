@@ -46,6 +46,8 @@
             this.txtSysprepAnswerFile = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.txtOutput = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.tabGeneral.SuspendLayout();
             this.General.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -57,7 +59,7 @@
             this.btnApply.BackColor = System.Drawing.SystemColors.WindowFrame;
             this.btnApply.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnApply.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.btnApply.Location = new System.Drawing.Point(463, 362);
+            this.btnApply.Location = new System.Drawing.Point(469, 344);
             this.btnApply.Name = "btnApply";
             this.btnApply.Size = new System.Drawing.Size(143, 36);
             this.btnApply.TabIndex = 0;
@@ -70,7 +72,7 @@
             this.btnCancel.BackColor = System.Drawing.SystemColors.WindowFrame;
             this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCancel.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.btnCancel.Location = new System.Drawing.Point(166, 362);
+            this.btnCancel.Location = new System.Drawing.Point(169, 344);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(143, 36);
             this.btnCancel.TabIndex = 1;
@@ -252,12 +254,33 @@
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
+            // txtOutput
+            // 
+            this.txtOutput.BackColor = System.Drawing.SystemColors.Menu;
+            this.txtOutput.Location = new System.Drawing.Point(33, 405);
+            this.txtOutput.Multiline = true;
+            this.txtOutput.Name = "txtOutput";
+            this.txtOutput.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtOutput.Size = new System.Drawing.Size(737, 180);
+            this.txtOutput.TabIndex = 9;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(45, 388);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(63, 13);
+            this.label2.TabIndex = 10;
+            this.label2.Text = "Log Output:";
+            // 
             // GUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DimGray;
-            this.ClientSize = new System.Drawing.Size(807, 418);
+            this.ClientSize = new System.Drawing.Size(792, 595);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.txtOutput);
             this.Controls.Add(this.tabGeneral);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnApply);
@@ -272,6 +295,7 @@
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -294,5 +318,7 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.TextBox txtSysprepAnswerFile;
+        private System.Windows.Forms.TextBox txtOutput;
+        private System.Windows.Forms.Label label2;
     }
 }

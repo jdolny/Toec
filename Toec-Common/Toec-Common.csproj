@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="Dto\DtoClientModuleCondition.cs" />
     <Compile Include="Dto\DtoComServerConnection.cs" />
+    <Compile Include="Dto\DtoDomainJoinCredentials.cs" />
     <Compile Include="Dto\DtoDownloadConnectionResult.cs" />
     <Compile Include="Dto\DtoDownloadConRequest.cs" />
     <Compile Include="Dto\DtoHubAction.cs" />

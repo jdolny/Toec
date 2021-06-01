@@ -58,8 +58,6 @@ namespace Toec.Commands
             Console.WriteLine("Changes the server key and certificate thumbprint for the endpoint");
             Console.Write("--prepareImage\t\t\t\t");
             Console.WriteLine("Prepares the Toec client for image capture");
-            Console.Write("--prepareImageGui\t\t\t");
-            Console.WriteLine("Opens a dialog for additional image prep customization");
             Console.Write("--comServers [COM_SERVERS]\t\t");
             Console.WriteLine("Manually update the endpoint's com servers");
 
