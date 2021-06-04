@@ -20,28 +20,26 @@ namespace Toec_Services
                 var clientIsNewerThanServer = false;
                 try
                 {
-                    
                     var serverVersion = expectedClientVersion.Split('.');
                     var serverMajor = Convert.ToInt32(serverVersion[0]);
                     var serverMinor = Convert.ToInt32(serverVersion[1]);
                     var serverBuild = Convert.ToInt32(serverVersion[2]);
-                    var serverRevision = Convert.ToInt32(serverVersion[3]);
+
 
                     var clientVersion = DtoGobalSettings.ClientVersion.Split('.');
                     var clientMajor = Convert.ToInt32(clientVersion[0]);
                     var clientMinor = Convert.ToInt32(clientVersion[1]);
                     var clientBuild = Convert.ToInt32(clientVersion[2]);
-                    var clientRevision = Convert.ToInt32(clientVersion[3]);
+
 
                     if (clientMajor > serverMajor)
                         clientIsNewerThanServer = true;
-                    else if (clientMajor <= serverMajor && clientMinor > serverMinor)
+
+                    else if (clientMajor == serverMajor && clientMinor > serverMinor)
                         clientIsNewerThanServer = true;
-                    else if (clientMajor <= serverMajor && clientMinor <= serverMinor &&
+
+                    else if (clientMajor == serverMajor && clientMinor == serverMinor &&
                              clientBuild > serverBuild)
-                        clientIsNewerThanServer = true;
-                    else if (clientMajor <= serverMajor && clientMinor <= serverMinor &&
-                             clientBuild <= serverBuild && clientRevision > serverRevision)
                         clientIsNewerThanServer = true;
 
                     if (clientIsNewerThanServer)
