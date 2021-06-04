@@ -40,6 +40,8 @@ namespace Toec_ImagePrep
             txtSetupComplete.Text += @"pnputil.exe /add-driver c:\drivers\*.inf /subdirs /install" + Environment.NewLine;
             txtSetupComplete.Text += "mkdir \"%ProgramFiles%\\Toec\"" + Environment.NewLine;
             txtSetupComplete.Text += "copy NUL \"%ProgramFiles%\\Toec\\setupcompletecmd_complete\"" + Environment.NewLine;
+            txtSetupComplete.Text += "net stop toec /y" + Environment.NewLine;
+            txtSetupComplete.Text += "net start toec /y" + Environment.NewLine;
 
 
         }
