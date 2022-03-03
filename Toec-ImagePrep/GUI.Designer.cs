@@ -39,6 +39,7 @@
             this.chkResetToec = new System.Windows.Forms.CheckBox();
             this.tabGeneral = new System.Windows.Forms.TabControl();
             this.General = new System.Windows.Forms.TabPage();
+            this.chkRemoveRemoteAccess = new System.Windows.Forms.CheckBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.label1 = new System.Windows.Forms.Label();
             this.txtSetupComplete = new System.Windows.Forms.TextBox();
@@ -179,6 +180,7 @@
             // General
             // 
             this.General.BackColor = System.Drawing.Color.DimGray;
+            this.General.Controls.Add(this.chkRemoveRemoteAccess);
             this.General.Controls.Add(this.chkEnableBackground);
             this.General.Controls.Add(this.chkResetToec);
             this.General.Controls.Add(this.chkDisableHibernate);
@@ -191,6 +193,20 @@
             this.General.Size = new System.Drawing.Size(733, 294);
             this.General.TabIndex = 0;
             this.General.Text = "General";
+            // 
+            // chkRemoveRemoteAccess
+            // 
+            this.chkRemoveRemoteAccess.AutoSize = true;
+            this.chkRemoveRemoteAccess.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.chkRemoveRemoteAccess.Checked = true;
+            this.chkRemoveRemoteAccess.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkRemoveRemoteAccess.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.chkRemoveRemoteAccess.Location = new System.Drawing.Point(74, 254);
+            this.chkRemoveRemoteAccess.Name = "chkRemoveRemoteAccess";
+            this.chkRemoveRemoteAccess.Size = new System.Drawing.Size(170, 17);
+            this.chkRemoveRemoteAccess.TabIndex = 8;
+            this.chkRemoveRemoteAccess.Text = "Uninstall Remote Access Client";
+            this.chkRemoveRemoteAccess.UseVisualStyleBackColor = false;
             // 
             // tabPage2
             // 
@@ -320,5 +336,6 @@
         private System.Windows.Forms.TextBox txtSysprepAnswerFile;
         private System.Windows.Forms.TextBox txtOutput;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.CheckBox chkRemoveRemoteAccess;
     }
 }

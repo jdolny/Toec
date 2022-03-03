@@ -16,5 +16,6 @@ namespace Toec_Common.Dto
         public bool ResetToec { get; set; }
         public string SetupCompleteContents { get; set; }
         public string SysprepAnswerPath { get; set; }
+        public bool RemoveRemoteAccess { get; set; }
     }
 }

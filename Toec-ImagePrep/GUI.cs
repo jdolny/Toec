@@ -74,6 +74,9 @@ namespace Toec_ImagePrep
             if (chkResetToec.Checked)
                 imagePrepOptions.ResetToec = true;
 
+            if (chkRemoveRemoteAccess.Checked)
+                imagePrepOptions.RemoveRemoteAccess = true;
+
             Run(imagePrepOptions);
 
         }
@@ -125,6 +128,7 @@ namespace Toec_ImagePrep
             AddDriverRegistry();
             EnableWinLogonBackground();
             CreateSetupComplete();
+            RemoveRemoteAccess();
             ResetToec();
             RunSysprep();
 
@@ -133,6 +137,21 @@ namespace Toec_ImagePrep
             return true;
         }
 
+        private void RemoveRemoteAccess()
+        {
+            if (!_imagePrepOptions.RemoveRemoteAccess) return;
+            AppendLogText("Removing Remove Access Client");
+            var remotelyPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles) + "\\Remotely\\Remotely_Installer.exe";
+            if(File.Exists(remotelyPath))
+            {
+                System.Diagnostics.Process.Start(remotelyPath, "-uninstall -quiet");
+            }
+            else
+            {
+                AppendLogText("Remotely Not Found.");
+            }
+            AppendLogText("Finished Removing Access Client.");
+        }
         private void CreateSetupComplete()
         {
             if (!_imagePrepOptions.CreateSetupComplete) return;
@@ -243,6 +262,8 @@ namespace Toec_ImagePrep
 
             AppendLogText("Finished Resetting Toec");
         }
+
+
     }
 
    
