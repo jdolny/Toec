@@ -100,9 +100,9 @@ namespace Toec_Services
             }
             else
             {
-                Logger.Error("Startup Checkin Failed.  Trying Again In 5 Minutes");
-                //start a timer to try and check in every 5 minutes if checkin failed
-                _startupRetryTime = new Timer(5*MillisecondsPerMinute);
+                Logger.Error("Startup Checkin Failed.  Trying Again In 1 Minute");
+                //start a timer to try and check in every 1 minutes if checkin failed
+                _startupRetryTime = new Timer(1*MillisecondsPerMinute);
                 _startupRetryTime.Elapsed += StartupRetry;
                 _startupRetryTime.Enabled = true;
             }
@@ -125,7 +125,7 @@ namespace Toec_Services
             }
             else
             {
-                Logger.Error("Checkin Failed.  Trying Again In 5 Minutes");
+                Logger.Error("Checkin Failed.  Trying Again In 1 Minute");
             }
         }
 
