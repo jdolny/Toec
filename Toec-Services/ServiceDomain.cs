@@ -48,8 +48,8 @@ namespace Toec_Services
                 }
                 else if(resultValue == 2224)
                 {
-                    Logger.Info("Computer Already Exists In A Different OU.  Cannot Join To Specified OU");
-                    resultValue = NetJoinDomain(null, credentials.Domain, null, credentials.Username, credentials.Password, (JoinOptions.NETSETUP_JOIN_DOMAIN | JoinOptions.NETSETUP_ACCT_CREATE));
+                    Logger.Info("Computer Already Exists In A Different OU.  Cannot Join To Specified OU, Joining To Existing OU");
+                    resultValue = NetJoinDomain(null, credentials.Domain, null, credentials.Username, credentials.Password, (JoinOptions.NETSETUP_JOIN_DOMAIN ));
                     if (resultValue == 0)
                     {
                         Logger.Info("Successfully Joined Domain");
