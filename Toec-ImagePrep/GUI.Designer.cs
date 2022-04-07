@@ -90,7 +90,7 @@
             this.chkDisableHibernate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.chkDisableHibernate.Location = new System.Drawing.Point(74, 29);
             this.chkDisableHibernate.Name = "chkDisableHibernate";
-            this.chkDisableHibernate.Size = new System.Drawing.Size(115, 17);
+            this.chkDisableHibernate.Size = new System.Drawing.Size(134, 19);
             this.chkDisableHibernate.TabIndex = 2;
             this.chkDisableHibernate.Text = "Disable Hibernation";
             this.chkDisableHibernate.UseVisualStyleBackColor = false;
@@ -104,7 +104,7 @@
             this.chkEnableBackground.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.chkEnableBackground.Location = new System.Drawing.Point(74, 104);
             this.chkEnableBackground.Name = "chkEnableBackground";
-            this.chkEnableBackground.Size = new System.Drawing.Size(215, 17);
+            this.chkEnableBackground.Size = new System.Drawing.Size(248, 19);
             this.chkEnableBackground.TabIndex = 3;
             this.chkEnableBackground.Text = "Enable WinLogon Finalizing Background";
             this.chkEnableBackground.UseVisualStyleBackColor = false;
@@ -118,7 +118,7 @@
             this.chkDriversReg.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.chkDriversReg.Location = new System.Drawing.Point(74, 63);
             this.chkDriversReg.Name = "chkDriversReg";
-            this.chkDriversReg.Size = new System.Drawing.Size(194, 17);
+            this.chkDriversReg.Size = new System.Drawing.Size(215, 19);
             this.chkDriversReg.TabIndex = 4;
             this.chkDriversReg.Text = "Add C:\\Drivers Location To Registry";
             this.chkDriversReg.UseVisualStyleBackColor = false;
@@ -132,7 +132,7 @@
             this.chkCreateSetupComplete.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.chkCreateSetupComplete.Location = new System.Drawing.Point(74, 146);
             this.chkCreateSetupComplete.Name = "chkCreateSetupComplete";
-            this.chkCreateSetupComplete.Size = new System.Drawing.Size(152, 17);
+            this.chkCreateSetupComplete.Size = new System.Drawing.Size(176, 19);
             this.chkCreateSetupComplete.TabIndex = 5;
             this.chkCreateSetupComplete.Text = "Create SetupComplete.cmd";
             this.chkCreateSetupComplete.UseVisualStyleBackColor = false;
@@ -146,7 +146,7 @@
             this.chkRunSysprep.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.chkRunSysprep.Location = new System.Drawing.Point(74, 185);
             this.chkRunSysprep.Name = "chkRunSysprep";
-            this.chkRunSysprep.Size = new System.Drawing.Size(84, 17);
+            this.chkRunSysprep.Size = new System.Drawing.Size(95, 19);
             this.chkRunSysprep.TabIndex = 6;
             this.chkRunSysprep.Text = "Run Sysprep";
             this.chkRunSysprep.UseVisualStyleBackColor = false;
@@ -160,7 +160,7 @@
             this.chkResetToec.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.chkResetToec.Location = new System.Drawing.Point(74, 222);
             this.chkResetToec.Name = "chkResetToec";
-            this.chkResetToec.Size = new System.Drawing.Size(79, 17);
+            this.chkResetToec.Size = new System.Drawing.Size(87, 19);
             this.chkResetToec.TabIndex = 7;
             this.chkResetToec.Text = "Reset Toec";
             this.chkResetToec.UseVisualStyleBackColor = false;
@@ -203,7 +203,7 @@
             this.chkRemoveRemoteAccess.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.chkRemoveRemoteAccess.Location = new System.Drawing.Point(74, 254);
             this.chkRemoveRemoteAccess.Name = "chkRemoveRemoteAccess";
-            this.chkRemoveRemoteAccess.Size = new System.Drawing.Size(170, 17);
+            this.chkRemoveRemoteAccess.Size = new System.Drawing.Size(195, 19);
             this.chkRemoveRemoteAccess.TabIndex = 8;
             this.chkRemoveRemoteAccess.Text = "Uninstall Remote Access Client";
             this.chkRemoveRemoteAccess.UseVisualStyleBackColor = false;
@@ -225,7 +225,7 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(26, 14);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(177, 13);
+            this.label1.Size = new System.Drawing.Size(204, 15);
             this.label1.TabIndex = 1;
             this.label1.Text = "SetupComplete.cmd Script Contents";
             // 
@@ -234,6 +234,7 @@
             this.txtSetupComplete.Location = new System.Drawing.Point(26, 33);
             this.txtSetupComplete.Multiline = true;
             this.txtSetupComplete.Name = "txtSetupComplete";
+            this.txtSetupComplete.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtSetupComplete.Size = new System.Drawing.Size(679, 223);
             this.txtSetupComplete.TabIndex = 0;
             // 
@@ -285,7 +286,7 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(45, 388);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(63, 13);
+            this.label2.Size = new System.Drawing.Size(70, 15);
             this.label2.TabIndex = 10;
             this.label2.Text = "Log Output:";
             // 

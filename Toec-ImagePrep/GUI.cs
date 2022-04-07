@@ -34,14 +34,27 @@ namespace Toec_ImagePrep
          
             InitializeComponent();
 
-            txtSetupComplete.Text = @"powercfg.exe /h off" + Environment.NewLine;
-            txtSetupComplete.Text += @"del /Q /F c:\windows\system32\sysprep\unattend.xml" + Environment.NewLine;
-            txtSetupComplete.Text += @"del /Q /F c:\windows\panther\unattend.xml" + Environment.NewLine;
-            txtSetupComplete.Text += @"pnputil.exe /add-driver c:\drivers\*.inf /subdirs /install" + Environment.NewLine;
-            txtSetupComplete.Text += "mkdir \"%ProgramFiles%\\Toec\"" + Environment.NewLine;
-            txtSetupComplete.Text += "copy NUL \"%ProgramFiles%\\Toec\\setupcompletecmd_complete\"" + Environment.NewLine;
-            txtSetupComplete.Text += "net stop toec /y" + Environment.NewLine;
-            txtSetupComplete.Text += "net start toec /y" + Environment.NewLine;
+            txtSetupComplete.Text = "mkdir \"%ProgramFiles%\\Toec\"" + Environment.NewLine;
+            txtSetupComplete.Text += "net stop toec /y >> \"%ProgramFiles%\\Toec\\setupcomplete.log\"" + Environment.NewLine;
+            txtSetupComplete.Text += "powercfg.exe /h off >> \"%ProgramFiles%\\Toec\\setupcomplete.log\"" + Environment.NewLine;
+            txtSetupComplete.Text += "copy NUL \"%ProgramFiles%\\Toec\\setupcompletecmd_complete\" >> \"%ProgramFiles%\\Toec\\setupcomplete.log\"" + Environment.NewLine;
+            txtSetupComplete.Text += "del /Q /F c:\\windows\\system32\\sysprep\\unattend.xml >> \"%ProgramFiles%\\Toec\\setupcomplete.log\" " + Environment.NewLine;
+            txtSetupComplete.Text += "del /Q /F c:\\windows\\panther\\unattend.xml >> \"%ProgramFiles%\\Toec\\setupcomplete.log\"" + Environment.NewLine;
+            //txtSetupComplete.Text += @"pnputil.exe /add-driver c:\drivers\*.inf /subdirs /install" + Environment.NewLine;
+            txtSetupComplete.Text += Environment.NewLine;
+            txtSetupComplete.Text += "REM ####### Driver install ###########" + Environment.NewLine;
+            txtSetupComplete.Text += @"PowerShell ^" + Environment.NewLine;
+            txtSetupComplete.Text += "$Drivers = Get-ChildItem \"C:\\drivers\" -Recurse -Filter \"*.inf\" ;^" + Environment.NewLine;
+            txtSetupComplete.Text += "ForEach($Driver in $Drivers) {;^" + Environment.NewLine;
+            txtSetupComplete.Text += "Write-Host Installing $Driver.FullName;^" + Environment.NewLine;
+            txtSetupComplete.Text += "$p = (Start-Process -FilePath pnputil.exe -ArgumentList \\\"/add-driver $Driver.FullName /install\\\" -Passthru);^" + Environment.NewLine;
+            txtSetupComplete.Text += "Wait-Process -Id $p.Id -Timeout 120;^" + Environment.NewLine;
+            txtSetupComplete.Text += "taskkill /pid $p.Id /f /t;^" + Environment.NewLine;
+            txtSetupComplete.Text += "} >> \"%ProgramFiles%\\Toec\\setupcomplete.log\";^" + Environment.NewLine;
+            txtSetupComplete.Text += "%End PowerShell%" + Environment.NewLine;
+            txtSetupComplete.Text += "REM ####### End Driver install ###########" + Environment.NewLine;
+            txtSetupComplete.Text += Environment.NewLine;
+            txtSetupComplete.Text += "net start toec /y" + Environment.NewLine + Environment.NewLine;
 
 
         }
@@ -262,7 +275,6 @@ namespace Toec_ImagePrep
 
             AppendLogText("Finished Resetting Toec");
         }
-
 
     }
 
