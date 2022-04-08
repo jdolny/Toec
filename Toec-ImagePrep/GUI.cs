@@ -46,17 +46,13 @@ namespace Toec_ImagePrep
             txtSetupComplete.Text += @"PowerShell ^" + Environment.NewLine;
             txtSetupComplete.Text += "$Drivers = Get-ChildItem \"C:\\drivers\" -Recurse -Filter \"*.inf\" ;^" + Environment.NewLine;
             txtSetupComplete.Text += "ForEach($Driver in $Drivers) {;^" + Environment.NewLine;
-            txtSetupComplete.Text += "Write-Host Installing $Driver.FullName;^" + Environment.NewLine;
-            txtSetupComplete.Text += "$p = (Start-Process -FilePath pnputil.exe -ArgumentList \\\"/add-driver $Driver.FullName /install\\\" -Passthru);^" + Environment.NewLine;
-            txtSetupComplete.Text += "Wait-Process -Id $p.Id -Timeout 120;^" + Environment.NewLine;
-            txtSetupComplete.Text += "taskkill /pid $p.Id /f /t;^" + Environment.NewLine;
-            txtSetupComplete.Text += "} >> \"%ProgramFiles%\\Toec\\setupcomplete.log\";^" + Environment.NewLine;
+            txtSetupComplete.Text += "$args = \\\"/add-driver $($Driver.FullName) /install \\\";^" + Environment.NewLine;
+            txtSetupComplete.Text += "$p = (Start-Process -FilePath pnputil.exe -ArgumentList $args -NoNewWindow -Passthru);^" + Environment.NewLine;
+            txtSetupComplete.Text += "Wait-Process -Id $p.Id -Timeout 10 >> \"%ProgramFiles%\\Toec\\setupcomplete.log\";^" + Environment.NewLine;
+            txtSetupComplete.Text += "};^" + Environment.NewLine;
             txtSetupComplete.Text += "%End PowerShell%" + Environment.NewLine;
-            txtSetupComplete.Text += "REM ####### End Driver install ###########" + Environment.NewLine;
             txtSetupComplete.Text += Environment.NewLine;
-            txtSetupComplete.Text += "net start toec /y" + Environment.NewLine + Environment.NewLine;
-
-
+            txtSetupComplete.Text += "net start toec /y" + Environment.NewLine;
         }
 
         private void btnApply_Click(object sender, EventArgs e)
