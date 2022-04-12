@@ -245,6 +245,7 @@ namespace Toec_ImagePrep
                 var sysPrepPath = Path.Combine(winPath, "System32", "Sysprep");
                 var finalPath = Path.Combine(sysPrepPath, "unattend.xml");
                 File.WriteAllText(finalPath, txtSysprep.Text);
+                System.Diagnostics.Process.Start(Path.Combine(sysPrepPath, "sysprep.exe"), $"/oobe /generalize /shutdown /unattend:{Path.Combine(sysPrepPath, "unattend.xml")}");
             }
             AppendLogText("Finished Running Sysprep");
 
