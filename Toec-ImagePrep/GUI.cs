@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -165,8 +166,31 @@ namespace Toec_ImagePrep
                 foreach(var file in filesToDownload)
                 {
                     new APICall().PolicyApi.GetFileForImagePrep(file, "c:\\drivers\\imageprep\\" + file.FileName);
+
+                    var extension = Path.GetExtension(file.FileName);
+                    var name = Path.GetFileNameWithoutExtension(file.FileName);
+                    if (!string.IsNullOrEmpty(extension) && extension.ToLower().Equals(".zip"))
+                    {
+                        try
+                        {
+                            var path = Path.Combine("c:\\drivers\\imageprep\\", file.FileName);
+                            using (FileStream zipToOpen = new FileStream(path, FileMode.Open))
+                            {
+                                using (ZipArchive archive = new ZipArchive(zipToOpen))
+                                {
+                                    Directory.CreateDirectory($"c:\\drivers\\imageprep\\{name}");
+                                    ZipArchiveExtensions.ExtractToDirectory(archive, $"c:\\drivers\\imageprep\\{name}", true);
+                                }
+                            }
+                        }
+                        catch
+                        {
+
+                        }
+                    }
                 }
             }
+
 
             System.Diagnostics.Process.Start("pnputil.exe" , $"/add-driver c:\\drivers\\imageprep\\*.inf /install /subdirs");
         }
