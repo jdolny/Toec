@@ -125,7 +125,7 @@ namespace Toec_ImagePrep
                 return false;
             }
 
-            if (imagePrepOptions.RunSysprep && string.IsNullOrEmpty(imagePrepOptions.SysprepAnswerPath))
+            if (imagePrepOptions.RunSysprep && string.IsNullOrEmpty(imagePrepOptions.SysprepAnswerPath) && string.IsNullOrEmpty(txtSysprep.Text))
             {
                 AppendLogText("A Sysprep Answer File Was Not Defined.  Image Prep Cancelled");
                 return false;
