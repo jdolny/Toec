@@ -42,6 +42,15 @@ namespace Toec_Services.ApiCall
             return apiRequest.DownloadFile(Request, JsonConvert.SerializeObject(fileRequest),outputPath);
         }
 
+        public bool GetFileForImagePrep(DtoClientFileRequest fileRequest, string outputPath)
+        {
+            Request.Method = Method.POST;
+            Request.Timeout = 14400000;
+            Request.Resource = string.Format("ProvisionedComm/{0}/GetFile/", Resource);
+            var apiRequest = new ApiRequest(14400000);
+            return apiRequest.DownloadFile(Request, JsonConvert.SerializeObject(fileRequest), outputPath);
+        }
+
         public bool GetClientUpgrade(DtoClientFileRequest fileRequest, string computerName)
         {
             Request.Method = Method.POST;

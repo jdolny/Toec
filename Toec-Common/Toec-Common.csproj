@@ -55,7 +55,9 @@
     <Compile Include="Dto\DtoImpersonationAccount.cs" />
     <Compile Include="Dto\DtoIpInfo.cs" />
     <Compile Include="Dto\DtoMessage.cs" />
+    <Compile Include="Dto\DtoSetupCompleteFile.cs" />
     <Compile Include="Dto\DtoSocketServerVerify.cs" />
+    <Compile Include="Dto\DtoSysprepAnswerFile.cs" />
     <Compile Include="Dto\DtoWolTask.cs" />
     <Compile Include="Dto\RemotelyConnectionInfo.cs" />
     <Compile Include="Entity\EntityAppMonitor.cs" />

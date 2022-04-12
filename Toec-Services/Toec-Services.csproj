@@ -82,6 +82,7 @@
     <Compile Include="ApiCall\IAPICall.cs" />
     <Compile Include="ApiCall\IBaseAPI.cs" />
     <Compile Include="ApiCall\InventoryAPI.cs" />
+    <Compile Include="ApiCall\ImagePrepAPI.cs" />
     <Compile Include="ApiCall\TrayAPI.cs" />
     <Compile Include="ApiCall\LocalAPI.cs" />
     <Compile Include="ApiCall\PolicyAPI.cs" />

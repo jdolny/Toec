@@ -26,5 +26,10 @@
         {
             get { return new PolicyAPI("Policy"); }
         }
+
+        public ImagePrepAPI ImagePrepApi
+        {
+            get { return new ImagePrepAPI("ImagePrep"); }
+        }
     }
 }
