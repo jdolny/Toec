@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -94,6 +95,10 @@ namespace Toec_Services.Socket
                     l.Start();
                     break;
 
+                case "System_Uptime":
+                    var uptime = new Thread(GetUptime);
+                    uptime.Start();
+                    break;
                 default:
                     Logger.Info("Action Was Not Recognized.");
                     break;
@@ -188,6 +193,26 @@ namespace Toec_Services.Socket
         public void GetStatus()
         {
             new APICall().PolicyApi.UpdateLastSocketResult(new DtoStringResponse() { Value = "Connected" });
+        }
+
+        public void GetUptime()
+        {
+            try
+            {
+                using (var uptime = new PerformanceCounter("System", "System Up Time"))
+                {
+                    TimeSpan systemUptime;
+                    uptime.NextValue();
+                    systemUptime = TimeSpan.FromSeconds(uptime.NextValue());
+                    var str = systemUptime.ToString();
+                    new APICall().PolicyApi.UpdateLastSocketResult(new DtoStringResponse() { Value = str});
+                }
+            }
+            catch
+            {
+
+            }
+            
         }
     }
 }
