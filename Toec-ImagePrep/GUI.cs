@@ -191,8 +191,11 @@ namespace Toec_ImagePrep
                 }
             }
 
-
-            System.Diagnostics.Process.Start("pnputil.exe" , $"/add-driver c:\\drivers\\imageprep\\*.inf /install /subdirs");
+            var driverProcess = new System.Diagnostics.Process();
+            driverProcess.StartInfo.FileName = "pnputil.exe";
+            driverProcess.StartInfo.Arguments = $"/add-driver c:\\drivers\\imageprep\\*.inf /install /subdirs";
+            driverProcess.Start();
+            driverProcess.WaitForExit();
         }
         private void RemoveRemoteAccess()
         {
@@ -392,6 +395,7 @@ namespace Toec_ImagePrep
 
         private void ddlSetupComplete_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (!_serverConnectionSuccessful) return;
             try
             {
                 var setupCompleteId = (int)ddlSetupComplete.SelectedValue;
@@ -404,6 +408,7 @@ namespace Toec_ImagePrep
 
         private void ddlSysprep_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (!_serverConnectionSuccessful) return;
             try
             {
                 var sysprepId = (int)ddlSysprep.SelectedValue;
