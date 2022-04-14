@@ -41,6 +41,7 @@ namespace Toec_Services.Entity
             {
                 var exists = _uow.UserLoginRepository.GetById(e.Id);
                 if (exists == null) continue;
+                if (exists.LogoutDateTime == null) continue; //don't delete yet, we still need to update the logoff time if it happens and submit to server
                 _uow.UserLoginRepository.Delete(e.Id);
             }
             _uow.Save();
@@ -51,7 +52,7 @@ namespace Toec_Services.Entity
         {
             return
                 _uow.UserLoginRepository.Get(
-                    x => !string.IsNullOrEmpty(x.LoginDateTime) && !string.IsNullOrEmpty(x.LogoutDateTime));
+                    x => !string.IsNullOrEmpty(x.LoginDateTime)); //get all events instead of completed as of 1.4.8 //&& !string.IsNullOrEmpty(x.LogoutDateTime));
         }
 
         public EntityUserLogin GetUserLastLogin(string userName)
@@ -76,8 +77,8 @@ namespace Toec_Services.Entity
 
         public DtoActionResult CleanupOldEvents()
         {
-            //cleanup old events that never closed
-            var events = _uow.UserLoginRepository.Get(x => string.IsNullOrEmpty(x.LogoutDateTime));
+            //cleanup old events 
+            var events = _uow.UserLoginRepository.Get();
             foreach (var e in events)
             {
                 if (string.IsNullOrEmpty(e.LoginDateTime)) continue;
