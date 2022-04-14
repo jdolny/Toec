@@ -8,5 +8,7 @@
         public string Name { get; set; }
         public int Revision { get; set; }
         public string Version { get; set; }
+
+        public string UninstallString { get; set; }
     }
 }

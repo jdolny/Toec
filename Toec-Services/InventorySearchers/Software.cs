@@ -57,12 +57,14 @@ namespace Toec_Services.InventorySearchers
                 if (softwareKey == null) continue;
                 var name = Convert.ToString(softwareKey.GetValue("DisplayName"));
                 var version = Convert.ToString(softwareKey.GetValue("DisplayVersion"));
+                var uninstallString = Convert.ToString(softwareKey.GetValue("UninstallString"));
                 if (string.IsNullOrEmpty(name)) continue;
                 if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(version))
                     continue;
                 var softwareInventory = new DtoSoftwareInventory();
                 softwareInventory.Name = name;
                 softwareInventory.Version = version;
+                softwareInventory.UninstallString = uninstallString;
                 if (string.IsNullOrEmpty(version))
                 {
                     _softwareIventory.Add(softwareInventory);

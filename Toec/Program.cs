@@ -1,5 +1,4 @@
-﻿
-using Toec.Commands;
+﻿using Toec.Commands;
 
 namespace Toec
 {
