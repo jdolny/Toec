@@ -33,7 +33,6 @@
             this.btnCancel = new System.Windows.Forms.Button();
             this.chkDisableHibernate = new System.Windows.Forms.CheckBox();
             this.chkEnableBackground = new System.Windows.Forms.CheckBox();
-            this.chkDriversReg = new System.Windows.Forms.CheckBox();
             this.chkCreateSetupComplete = new System.Windows.Forms.CheckBox();
             this.chkRunSysprep = new System.Windows.Forms.CheckBox();
             this.chkResetToec = new System.Windows.Forms.CheckBox();
@@ -49,6 +48,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.txtSetupComplete = new System.Windows.Forms.TextBox();
             this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.txtSysprep = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.ddlSysprep = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
@@ -59,7 +59,6 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.txtOutput = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.txtSysprep = new System.Windows.Forms.TextBox();
             this.tabGeneral.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.General.SuspendLayout();
@@ -115,26 +114,12 @@
             this.chkEnableBackground.Checked = true;
             this.chkEnableBackground.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkEnableBackground.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkEnableBackground.Location = new System.Drawing.Point(74, 104);
+            this.chkEnableBackground.Location = new System.Drawing.Point(74, 61);
             this.chkEnableBackground.Name = "chkEnableBackground";
             this.chkEnableBackground.Size = new System.Drawing.Size(215, 17);
             this.chkEnableBackground.TabIndex = 3;
             this.chkEnableBackground.Text = "Enable WinLogon Finalizing Background";
             this.chkEnableBackground.UseVisualStyleBackColor = false;
-            // 
-            // chkDriversReg
-            // 
-            this.chkDriversReg.AutoSize = true;
-            this.chkDriversReg.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.chkDriversReg.Checked = true;
-            this.chkDriversReg.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkDriversReg.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkDriversReg.Location = new System.Drawing.Point(74, 63);
-            this.chkDriversReg.Name = "chkDriversReg";
-            this.chkDriversReg.Size = new System.Drawing.Size(194, 17);
-            this.chkDriversReg.TabIndex = 4;
-            this.chkDriversReg.Text = "Add C:\\Drivers Location To Registry";
-            this.chkDriversReg.UseVisualStyleBackColor = false;
             // 
             // chkCreateSetupComplete
             // 
@@ -143,7 +128,7 @@
             this.chkCreateSetupComplete.Checked = true;
             this.chkCreateSetupComplete.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkCreateSetupComplete.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkCreateSetupComplete.Location = new System.Drawing.Point(74, 146);
+            this.chkCreateSetupComplete.Location = new System.Drawing.Point(74, 95);
             this.chkCreateSetupComplete.Name = "chkCreateSetupComplete";
             this.chkCreateSetupComplete.Size = new System.Drawing.Size(152, 17);
             this.chkCreateSetupComplete.TabIndex = 5;
@@ -157,7 +142,7 @@
             this.chkRunSysprep.Checked = true;
             this.chkRunSysprep.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkRunSysprep.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkRunSysprep.Location = new System.Drawing.Point(74, 185);
+            this.chkRunSysprep.Location = new System.Drawing.Point(74, 127);
             this.chkRunSysprep.Name = "chkRunSysprep";
             this.chkRunSysprep.Size = new System.Drawing.Size(84, 17);
             this.chkRunSysprep.TabIndex = 6;
@@ -171,7 +156,7 @@
             this.chkResetToec.Checked = true;
             this.chkResetToec.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkResetToec.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkResetToec.Location = new System.Drawing.Point(74, 222);
+            this.chkResetToec.Location = new System.Drawing.Point(74, 162);
             this.chkResetToec.Name = "chkResetToec";
             this.chkResetToec.Size = new System.Drawing.Size(79, 17);
             this.chkResetToec.TabIndex = 7;
@@ -198,9 +183,9 @@
             this.tabPage1.Controls.Add(this.txtConnectOutput);
             this.tabPage1.Controls.Add(this.ToemsConnect);
             this.tabPage1.Location = new System.Drawing.Point(4, 28);
-            this.tabPage1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage1.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(2);
             this.tabPage1.Size = new System.Drawing.Size(733, 294);
             this.tabPage1.TabIndex = 3;
             this.tabPage1.Text = "Server Connection";
@@ -208,7 +193,7 @@
             // txtConnectOutput
             // 
             this.txtConnectOutput.Location = new System.Drawing.Point(123, 105);
-            this.txtConnectOutput.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtConnectOutput.Margin = new System.Windows.Forms.Padding(2);
             this.txtConnectOutput.Multiline = true;
             this.txtConnectOutput.Name = "txtConnectOutput";
             this.txtConnectOutput.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
@@ -218,7 +203,7 @@
             // ToemsConnect
             // 
             this.ToemsConnect.Location = new System.Drawing.Point(248, 36);
-            this.ToemsConnect.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ToemsConnect.Margin = new System.Windows.Forms.Padding(2);
             this.ToemsConnect.Name = "ToemsConnect";
             this.ToemsConnect.Size = new System.Drawing.Size(218, 38);
             this.ToemsConnect.TabIndex = 0;
@@ -234,11 +219,10 @@
             this.General.Controls.Add(this.chkResetToec);
             this.General.Controls.Add(this.chkDisableHibernate);
             this.General.Controls.Add(this.chkRunSysprep);
-            this.General.Controls.Add(this.chkDriversReg);
             this.General.Controls.Add(this.chkCreateSetupComplete);
             this.General.Location = new System.Drawing.Point(4, 28);
             this.General.Name = "General";
-            this.General.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.General.Padding = new System.Windows.Forms.Padding(3);
             this.General.Size = new System.Drawing.Size(733, 294);
             this.General.TabIndex = 0;
             this.General.Text = "General";
@@ -250,7 +234,7 @@
             this.chkRemoveRemoteAccess.Checked = true;
             this.chkRemoveRemoteAccess.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkRemoveRemoteAccess.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkRemoveRemoteAccess.Location = new System.Drawing.Point(74, 254);
+            this.chkRemoveRemoteAccess.Location = new System.Drawing.Point(74, 195);
             this.chkRemoveRemoteAccess.Name = "chkRemoveRemoteAccess";
             this.chkRemoveRemoteAccess.Size = new System.Drawing.Size(170, 17);
             this.chkRemoveRemoteAccess.TabIndex = 8;
@@ -266,7 +250,7 @@
             this.tabPage2.Controls.Add(this.txtSetupComplete);
             this.tabPage2.Location = new System.Drawing.Point(4, 28);
             this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage2.Size = new System.Drawing.Size(733, 294);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "SetupComplete.cmd";
@@ -288,7 +272,7 @@
             this.ddlSetupComplete.ForeColor = System.Drawing.SystemColors.ScrollBar;
             this.ddlSetupComplete.FormattingEnabled = true;
             this.ddlSetupComplete.Location = new System.Drawing.Point(138, 9);
-            this.ddlSetupComplete.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ddlSetupComplete.Margin = new System.Windows.Forms.Padding(2);
             this.ddlSetupComplete.Name = "ddlSetupComplete";
             this.ddlSetupComplete.Size = new System.Drawing.Size(184, 21);
             this.ddlSetupComplete.TabIndex = 2;
@@ -323,10 +307,19 @@
             this.tabPage3.Controls.Add(this.button1);
             this.tabPage3.Location = new System.Drawing.Point(4, 28);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage3.Size = new System.Drawing.Size(733, 294);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Sysprep";
+            // 
+            // txtSysprep
+            // 
+            this.txtSysprep.Location = new System.Drawing.Point(71, 164);
+            this.txtSysprep.Multiline = true;
+            this.txtSysprep.Name = "txtSysprep";
+            this.txtSysprep.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtSysprep.Size = new System.Drawing.Size(615, 124);
+            this.txtSysprep.TabIndex = 7;
             // 
             // label5
             // 
@@ -346,7 +339,7 @@
             this.ddlSysprep.ForeColor = System.Drawing.SystemColors.ScrollBar;
             this.ddlSysprep.FormattingEnabled = true;
             this.ddlSysprep.Location = new System.Drawing.Point(71, 138);
-            this.ddlSysprep.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ddlSysprep.Margin = new System.Windows.Forms.Padding(2);
             this.ddlSysprep.Name = "ddlSysprep";
             this.ddlSysprep.Size = new System.Drawing.Size(184, 21);
             this.ddlSysprep.TabIndex = 5;
@@ -384,9 +377,9 @@
             this.tabPage4.BackColor = System.Drawing.Color.DimGray;
             this.tabPage4.Controls.Add(this.checkedListBoxDrivers);
             this.tabPage4.Location = new System.Drawing.Point(4, 28);
-            this.tabPage4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage4.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage4.Padding = new System.Windows.Forms.Padding(2);
             this.tabPage4.Size = new System.Drawing.Size(733, 294);
             this.tabPage4.TabIndex = 4;
             this.tabPage4.Text = "Additional Drivers";
@@ -395,7 +388,7 @@
             // 
             this.checkedListBoxDrivers.FormattingEnabled = true;
             this.checkedListBoxDrivers.Location = new System.Drawing.Point(124, 38);
-            this.checkedListBoxDrivers.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.checkedListBoxDrivers.Margin = new System.Windows.Forms.Padding(2);
             this.checkedListBoxDrivers.Name = "checkedListBoxDrivers";
             this.checkedListBoxDrivers.ScrollAlwaysVisible = true;
             this.checkedListBoxDrivers.Size = new System.Drawing.Size(471, 229);
@@ -423,15 +416,6 @@
             this.label2.Size = new System.Drawing.Size(63, 13);
             this.label2.TabIndex = 10;
             this.label2.Text = "Log Output:";
-            // 
-            // txtSysprep
-            // 
-            this.txtSysprep.Location = new System.Drawing.Point(71, 164);
-            this.txtSysprep.Multiline = true;
-            this.txtSysprep.Name = "txtSysprep";
-            this.txtSysprep.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtSysprep.Size = new System.Drawing.Size(615, 124);
-            this.txtSysprep.TabIndex = 7;
             // 
             // GUI
             // 
@@ -468,7 +452,6 @@
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.CheckBox chkDisableHibernate;
         private System.Windows.Forms.CheckBox chkEnableBackground;
-        private System.Windows.Forms.CheckBox chkDriversReg;
         private System.Windows.Forms.CheckBox chkCreateSetupComplete;
         private System.Windows.Forms.CheckBox chkRunSysprep;
         private System.Windows.Forms.CheckBox chkResetToec;

@@ -40,7 +40,7 @@ namespace Toec_ImagePrep
 
 
 
-            txtSetupComplete.Text = "mkdir \"%ProgramFiles%\\Toec\"" + Environment.NewLine;
+            /*txtSetupComplete.Text = "mkdir \"%ProgramFiles%\\Toec\"" + Environment.NewLine;
             txtSetupComplete.Text += "net stop toec /y >> \"%ProgramFiles%\\Toec\\setupcomplete.log\"" + Environment.NewLine;
             txtSetupComplete.Text += "powercfg.exe /h off >> \"%ProgramFiles%\\Toec\\setupcomplete.log\"" + Environment.NewLine;
             txtSetupComplete.Text += "copy NUL \"%ProgramFiles%\\Toec\\setupcompletecmd_complete\" >> \"%ProgramFiles%\\Toec\\setupcomplete.log\"" + Environment.NewLine;
@@ -59,7 +59,7 @@ namespace Toec_ImagePrep
             txtSetupComplete.Text += "%End PowerShell%" + Environment.NewLine;
             txtSetupComplete.Text += Environment.NewLine;
             txtSetupComplete.Text += "net start toec /y" + Environment.NewLine;
-
+            */
 
 
         }
@@ -70,9 +70,6 @@ namespace Toec_ImagePrep
             var imagePrepOptions = new DtoImagePrepOptions();
             if (chkDisableHibernate.Checked)
                 imagePrepOptions.RunHibernate = true;
-
-            if (chkDriversReg.Checked)
-                imagePrepOptions.AddDriverRegistry = true;
 
             if (chkEnableBackground.Checked)
                 imagePrepOptions.EnableFinalizingBackground = true;
@@ -143,7 +140,6 @@ namespace Toec_ImagePrep
             _imagePrepOptions = imagePrepOptions;
 
             DisableHibernation();
-            AddDriverRegistry();
             EnableWinLogonBackground();
             CreateSetupComplete();
             InstallDrivers();
@@ -221,14 +217,6 @@ namespace Toec_ImagePrep
             var scriptPath = Path.Combine(winPath, "Setup", "Scripts", "setupcomplete.cmd");
             File.WriteAllText(scriptPath, _imagePrepOptions.SetupCompleteContents);
             AppendLogText("Finished Creating Setup Complete Script");
-        }
-
-        private void AddDriverRegistry()
-        {
-            if (!_imagePrepOptions.AddDriverRegistry) return;
-            AppendLogText("Updating Registry DevicePath Locations.");
-            Microsoft.Win32.Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\", "DevicePath", "%SystemRoot%\\inf;c:\\drivers");
-            AppendLogText("Finished Updating Registry DevicePath Locations.");
         }
 
         private void RunSysprep()
