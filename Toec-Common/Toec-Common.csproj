@@ -62,6 +62,7 @@
     <Compile Include="Dto\RemotelyConnectionInfo.cs" />
     <Compile Include="Entity\EntityAppMonitor.cs" />
     <Compile Include="Enum\EnumCondition.cs" />
+    <Compile Include="Inventory\DtoVideoControllerInventory.cs" />
     <Compile Include="Inventory\DtoComputerSystemProduct.cs" />
     <Compile Include="Inventory\DtoLogicalVolumeInventory.cs" />
     <Compile Include="Inventory\DtoLogicalVolumeWmi.cs" />

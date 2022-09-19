@@ -9,6 +9,7 @@ namespace Toec_Common.Inventory
         {
             WindowsUpdates = new List<DtoWindowsUpdateInventory>();
             Software = new List<DtoSoftwareInventory>();
+            Gpu = new List<DtoVideoControllerInventory>();
             HardDrives = new List<DtoHardDriveInventory>();
             Printers = new List<DtoPrinterInventory>();
             NetworkAdapters = new List<DtoNicInventory>();
@@ -25,6 +26,7 @@ namespace Toec_Common.Inventory
         public DtoBiosInventory Bios { get; set; }
         public string ClientVersion { get; set; }
         public DtoComputerSystemInventory ComputerSystem { get; set; }
+        public List<DtoVideoControllerInventory> Gpu { get; set; }
         public List<DtoHardDriveInventory> HardDrives { get; set; }
         public List<DtoNicInventory> NetworkAdapters { get; set; }
         public DtoOsInventory Os { get; set; }
