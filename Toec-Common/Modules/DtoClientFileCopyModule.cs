@@ -18,6 +18,7 @@ namespace Toec_Common.Modules
         public string Guid { get; set; }
         public int Order { get; set; }
         public bool Unzip { get; set; }
+        public bool Overwrite { get; set; }
         public EnumCondition.FailedAction ConditionFailedAction { get; set; }
         public int ConditionNextOrder { get; set; }
         public DtoClientModuleCondition Condition { get; set; }

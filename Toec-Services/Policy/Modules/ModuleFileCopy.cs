@@ -69,7 +69,7 @@ namespace Toec_Services.Policy.Modules
                         {
                             using (ZipArchive archive = new ZipArchive(zipToOpen))
                             {
-                                ZipArchiveExtensions.ExtractToDirectory(archive, _module.Destination , true);
+                                ZipArchiveExtensions.ExtractToDirectory(archive, _module.Destination , _module.Overwrite);
                             }
                         }
                     }
@@ -92,7 +92,7 @@ namespace Toec_Services.Policy.Modules
                     if (
                         !_fileSystemService.CopyFile(
                             Path.Combine(DtoGobalSettings.BaseCachePath, _module.Guid, file.FileName),
-                            Path.Combine(_module.Destination, file.FileName)))
+                            Path.Combine(_module.Destination, file.FileName),_module.Overwrite))
                     {
                         _moduleResult.Success = false;
                         _moduleResult.ExitCode = "-1";

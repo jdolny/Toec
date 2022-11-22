@@ -36,11 +36,11 @@ namespace Toec_Services
             return null;
         }
 
-        public bool CopyFile(string source, string destination)
+        public bool CopyFile(string source, string destination, bool overwrite=true)
         {
             try
             {
-                File.Copy(source, destination, true);
+                File.Copy(source, destination, overwrite);
                 return true;
             }
             catch (Exception ex)
