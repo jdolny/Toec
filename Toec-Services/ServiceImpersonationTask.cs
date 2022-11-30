@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using log4net;
 using Microsoft.Win32.TaskScheduler;
 using Toec_Common.Dto;
@@ -28,12 +30,26 @@ namespace Toec_Services
                 Logger.Debug("Could Not Obtain Credentials For Impersonation Account " + ImpersonationGuid);
                 return -1;
             }
+
+            //add user to local backup operators group need for batch logon permission
+            var pArgs = new DtoProcessArgs();
+            pArgs.RunWith = "cmd.exe";
+            pArgs.RunWithArgs = "/c ";
+            pArgs.RedirectOutput = true;
+            pArgs.RedirectError = true;
+            pArgs.Command = "\"" + $"net localgroup \"backup operators\" {credentials.Username} /add" + "\"";
+            new ServiceProcess(pArgs).RunProcess();
+
+
+
+
             TaskDefinition td = TaskService.Instance.NewTask();
             td.RegistrationInfo.Description = "Toec Impersonation Task";
             td.Principal.RunLevel = TaskRunLevel.Highest;
             td.Actions.Add(Command,Arguments,WorkingDirectory);
             td.Settings.DisallowStartIfOnBatteries = false;
             td.Settings.StopIfGoingOnBatteries = false;
+            
             if(ExecutionTimeout != 0)
             {
                 td.Settings.ExecutionTimeLimit = TimeSpan.FromMinutes(ExecutionTimeout);
@@ -44,35 +60,10 @@ namespace Toec_Services
                 var ts = TaskService.Instance.RootFolder.RegisterTaskDefinition(
                     "Toec Impersonation Task " + ModuleGuid, td, TaskCreation.CreateOrUpdate, credentials.Username, credentials.Password, TaskLogonType.Password);
 
-                //Not sure if this actually helps in any way.
-                //Anyone care to share a better way?
-                for (int i = 0; i < 20; i++)
-                {
-                    credentials.Username = "000000";
-                    credentials.Password = "111111";
-                    credentials.Password = "000000";
-                    credentials.Username = "111111";
-                }
-
+           
                 ts.Run();
 
-                //Give the task some time to start
-                //If it hasn't started in 5 minutes skip for now
-               /* int counter = 1;
-                while (ts.State == TaskState.Queued || ts.State == TaskState.Ready)
-                {
-                    if (counter == 61)
-                    {
-                        ts.Stop();
-                        ts.TaskService.RootFolder.DeleteTask("Toec Impersonation Task " + ModuleGuid );
-                        return -1;
-                    }
-
-                    System.Threading.Tasks.Task.Delay(5 * 1000).Wait();
-                    counter++;
-                }
-                */
-                //Wait for task to finish up to Execution Timeout - handled by windows task scheduler
+             
                 while (ts.State == TaskState.Running)
                 {
                     System.Threading.Tasks.Task.Delay(5 * 1000).Wait();
@@ -80,6 +71,7 @@ namespace Toec_Services
                
                 ts.Stop();
                 var exitCode = ts.LastTaskResult;
+                
                 ts.TaskService.RootFolder.DeleteTask("Toec Impersonation Task " + ModuleGuid);
 
                 return exitCode;
@@ -89,6 +81,12 @@ namespace Toec_Services
                 Logger.Error("Could Not Run Impersonation Task");
                 Logger.Error(ex.Message);
                 return -1;
+            }
+            finally
+            {
+                // remove user from backup operators group
+                pArgs.Command = "\"" + $"net localgroup \"backup operators\" {credentials.Username} /delete" + "\"";
+                new ServiceProcess(pArgs).RunProcess();
             }
         }
 
