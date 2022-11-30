@@ -47,8 +47,8 @@
       <HintPath>..\packages\Microsoft.AspNet.SignalR.Client.2.4.0\lib\net45\Microsoft.AspNet.SignalR.Client.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Win32.TaskScheduler, Version=2.8.4.0, Culture=neutral, PublicKeyToken=c416bc1b32d97233, processorArchitecture=MSIL">
-      <HintPath>..\packages\TaskScheduler.2.8.4\lib\net452\Microsoft.Win32.TaskScheduler.dll</HintPath>
+    <Reference Include="Microsoft.Win32.TaskScheduler, Version=2.10.1.0, Culture=neutral, PublicKeyToken=e25603a88b3aa7da, processorArchitecture=MSIL">
+      <HintPath>..\packages\TaskScheduler.2.10.1\lib\net452\Microsoft.Win32.TaskScheduler.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -107,6 +107,7 @@
     <Compile Include="InventorySearchers\WUAAvailable.cs" />
     <Compile Include="InventorySearchers\WUAInstalled.cs" />
     <Compile Include="Policy\Modules\ModuleCommandManager.cs" />
+    <Compile Include="Policy\Modules\ModuleWinPe.cs" />
     <Compile Include="Policy\Modules\ModuleMessage.cs" />
     <Compile Include="Policy\Modules\ModuleFileCopy.cs" />
     <Compile Include="Policy\Modules\ModuleInventory.cs" />

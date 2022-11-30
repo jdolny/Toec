@@ -15,6 +15,7 @@ namespace Toec_Common.Modules
             SoftwareModules = new List<DtoClientSoftwareModule>();
             WuModules = new List<DtoClientWuModule>();
             MessageModules = new List<DtoClientMessageModule>();
+            WinPeModules = new List<DtoClientWinPeModule>();
             SkipServerResult = false;
         }
 
@@ -44,6 +45,7 @@ namespace Toec_Common.Modules
         public List<DtoClientSoftwareModule> SoftwareModules { get; set; }
         public List<DtoClientWuModule> WuModules { get; set; }
         public List<DtoClientMessageModule> MessageModules { get; set; }
+        public List<DtoClientWinPeModule> WinPeModules { get; set; }
         public int SubFrequency { get; set; }
         public bool SkipServerResult { get; set; }
         public EnumPolicy.Trigger Trigger { get; set; }

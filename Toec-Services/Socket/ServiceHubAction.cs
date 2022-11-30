@@ -99,6 +99,12 @@ namespace Toec_Services.Socket
                     var uptime = new Thread(GetUptime);
                     uptime.Start();
                     break;
+                case "WinPE_Image":
+                    var policyWinPe = JsonConvert.DeserializeObject<DtoClientPolicy>(action.Message);
+                    var winpeImaging = new Thread(() => RunStartImagingFromWindows(policyWinPe));
+                    winpeImaging.Start();
+                    break;
+
                 default:
                     Logger.Info("Action Was Not Recognized.");
                     break;
@@ -131,6 +137,12 @@ namespace Toec_Services.Socket
             new APICall().PolicyApi.UpdateLastSocketResult(new DtoStringResponse() { Value = "Instant Module Started Successfully" });
             new PolicyRunner(Toec_Common.Enum.EnumPolicy.Trigger.Checkin).Run(policy);
            
+        }
+
+        private void RunStartImagingFromWindows(DtoClientPolicy policy)
+        {
+            new APICall().PolicyApi.UpdateLastSocketResult(new DtoStringResponse() { Value = "Image From Windows Task Started" });
+            new PolicyRunner(Toec_Common.Enum.EnumPolicy.Trigger.Checkin).Run(policy);
         }
 
         private void RunStartRemoteControl()

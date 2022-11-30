@@ -229,7 +229,7 @@ namespace Toec_Services.Policy
 
             //cache all policies first if any need cached
             if (_policiesToRun.Policies.Any(x =>
-                x.SoftwareModules.Any() || x.FileCopyModules.Any() ||  x.WuModules.Any() || x.ScriptModules.Any() || x.CommandModules.Any()) || conditionNeedsCached || _policiesToRun.Policies.Any(x => x.Condition.Guid != null) || remotelyNeedsCached)
+                x.SoftwareModules.Any() || x.FileCopyModules.Any() || x.WinPeModules.Any() ||  x.WuModules.Any() || x.ScriptModules.Any() || x.CommandModules.Any()) || conditionNeedsCached || _policiesToRun.Policies.Any(x => x.Condition.Guid != null) || remotelyNeedsCached)
             {
                 //grab a download slot
                 Logger.Debug("Obtaining A Download Connection.");
@@ -343,7 +343,7 @@ namespace Toec_Services.Policy
             ((Hierarchy) LogManager.GetRepository()).RaiseConfigurationChanged(
                 EventArgs.Empty);
 
-            if (_reboot)
+            if (_reboot || (singleModulePolicy != null && _policiesToRun.Policies.Any(x => x.WinPeModules.Any())))
             {
                 Logger.Info("Policy Initiated Reboot.  Rebooting Now.");
                 if (_trigger == EnumPolicy.Trigger.Login)

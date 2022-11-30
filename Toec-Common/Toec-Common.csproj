@@ -74,6 +74,7 @@
     <Compile Include="Inventory\DtoCertificateInventory.cs" />
     <Compile Include="Inventory\DtoOsInventory.cs" />
     <Compile Include="Modules\DtoClientCommandModule.cs" />
+    <Compile Include="Modules\DtoClientWinPeModule.cs" />
     <Compile Include="Modules\DtoClientFileCopyModule.cs" />
     <Compile Include="Modules\DtoClientFileHash.cs" />
     <Compile Include="Modules\DtoClientPolicy.cs" />

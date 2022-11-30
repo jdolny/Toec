@@ -646,6 +646,23 @@ namespace Toec_Services.Policy
                                 return false;
                         }
                     }
+                    foreach (var module in policy.WinPeModules)
+                    {
+                        if (string.IsNullOrEmpty(module.Guid))
+                            return false;
+                        if (string.IsNullOrEmpty(module.DisplayName))
+                            return false;
+
+                        if (!int.TryParse(module.Order.ToString(), out value))
+                            return false;
+                        foreach (var file in module.Files)
+                        {
+                            if (string.IsNullOrEmpty(file.FileName))
+                                return false;
+                            if (string.IsNullOrEmpty(file.FileHash))
+                                return false;
+                        }
+                    }
                     foreach (var module in policy.PrinterModules)
                     {
                         if (string.IsNullOrEmpty(module.Guid))

@@ -61,6 +61,26 @@ namespace Toec_Services.Policy
                     return _policyResult;
             }
 
+            foreach (var module in _policy.WinPeModules)
+            {
+                moduleResult.Name = module.DisplayName;
+                moduleResult.Guid = module.Guid;
+
+                if (!CreateDirectory(module.Guid))
+                {
+                    moduleResult.ErrorMessage = "Could Not Create Cache Directory";
+                    if (IsStopError(moduleResult)) return _policyResult;
+                }
+                if (!DownloadFiles(module.Files, module.Guid, module.DisplayName))
+                {
+                    moduleResult.ErrorMessage = "Could Not Download File";
+                    if (IsStopError(moduleResult)) return _policyResult;
+                }
+
+                if (!CacheCondition(module.Condition))
+                    return _policyResult;
+            }
+
             foreach (var module in _policy.SoftwareModules)
             {
                 moduleResult.Name = module.DisplayName;

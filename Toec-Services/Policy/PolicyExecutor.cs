@@ -248,6 +248,42 @@ namespace Toec_Services.Policy
                     if (result.Success) continue;
                     if (IsPolicyStopError(result)) return _policyResult;
                 }
+                foreach (var module in _policy.WinPeModules)
+                {
+                    if (module.Order != order) continue;
+                    Logger.Debug($"Evaluating Conditions For {module.DisplayName}");
+                    if (!CheckCondition(module.Condition))
+                    {
+                        if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkSuccess)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Success;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkFailed)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Failed;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkNotApplicable)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.NotApplicable;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.MarkSkipped)
+                        {
+                            _policyResult.PolicyResult = EnumPolicy.Result.Skipped;
+                            return _policyResult;
+                        }
+                        else if (module.ConditionFailedAction == EnumCondition.FailedAction.GotoModule)
+                        {
+                            _conditionNextOrder = module.ConditionNextOrder;
+                            break;
+                        }
+                    }
+                    var result = new ModuleWinPe(module).Run();
+                    if (result.Success) continue;
+                    if (IsPolicyStopError(result)) return _policyResult;
+                }
                 foreach (var module in _policy.CommandModules)
                 {
                     if (module.Order != order) continue;
@@ -408,6 +444,7 @@ namespace Toec_Services.Policy
             list.AddRange(policy.CommandModules.Select(module => module.Order));
             list.AddRange(policy.WuModules.Select(module => module.Order));
             list.AddRange(policy.MessageModules.Select(module => module.Order));
+            list.AddRange(policy.WinPeModules.Select(module => module.Order));
 
             var distictList = list.Distinct().ToList();
             distictList.Sort();
