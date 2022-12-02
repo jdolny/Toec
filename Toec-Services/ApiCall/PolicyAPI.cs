@@ -57,7 +57,7 @@ namespace Toec_Services.ApiCall
 
             Request.Resource = string.Format("{0}/GetClientMsi/", Resource);
             var apiRequest = new ApiRequest();
-            Request.AddJsonBody(fileRequest);
+            Request.AddParameter("application/json", JsonConvert.SerializeObject(fileRequest), ParameterType.RequestBody);
             var response = apiRequest.ExecuteRawHmac(Request,computerName);
             if (response == null) return false;
            
@@ -145,7 +145,7 @@ namespace Toec_Services.ApiCall
         public DtoDownloadConnectionResult CreateDownloadConnection(DtoDownloadConRequest conRequest)
         {
             Request.Method = Method.POST;
-            Request.AddJsonBody(conRequest);
+            Request.AddParameter("application/json", JsonConvert.SerializeObject(conRequest), ParameterType.RequestBody);
             Request.Resource = string.Format("{0}/CreateDownloadConnection/", Resource);
             //this needs to use hmac or an endpoint that hasn't provisioned yet and needs an upgrade first, won't be able to upgrade
             var result = new ApiRequest().ExecuteHMAC<DtoDownloadConnectionResult>(Request, conRequest.ComputerName);
@@ -155,7 +155,7 @@ namespace Toec_Services.ApiCall
         public bool RemoveDownloadConnection(DtoDownloadConRequest conRequest)
         {
             Request.Method = Method.POST;
-            Request.AddJsonBody(conRequest);
+            Request.AddParameter("application/json", JsonConvert.SerializeObject(conRequest), ParameterType.RequestBody);
             Request.Resource = string.Format("{0}/RemoveDownloadConnection/", Resource);
             //this needs to use hmac or an endpoint that hasn't provisioned yet and needs an upgrade first, won't be able to upgrade
             var result = new ApiRequest().ExecuteHMAC<DtoBoolResponse>(Request, conRequest.ComputerName);

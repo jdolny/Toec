@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 using RestSharp;
 using Toec_Common.Dto;
 using Toec_Common.Entity;
@@ -26,7 +27,7 @@ namespace Toec_Services.ApiCall
         public bool GetFile(DtoClientFileRequest fileRequest)
         {
             Request.Method = Method.POST;
-            Request.AddJsonBody(fileRequest);
+            Request.AddParameter("application/json", JsonConvert.SerializeObject(fileRequest), ParameterType.RequestBody);
             Request.Resource = string.Format("api/{0}/GetFile/", Resource);
             var result =
                 new ApiRequest("http://localhost:" + DtoGobalSettings.LocalApiPort + "/").Execute<DtoBoolResponse>(
@@ -96,7 +97,7 @@ namespace Toec_Services.ApiCall
         public DtoActionResult WritePolicyHistory(EntityPolicyHistory history)
         {
             Request.Method = Method.POST;
-            Request.AddJsonBody(history);
+            Request.AddParameter("application/json", JsonConvert.SerializeObject(history), ParameterType.RequestBody);
             Request.Resource = string.Format("api/{0}/WritePolicyHistory/", Resource);
             return
                 new ApiRequest("http://localhost:" + DtoGobalSettings.LocalApiPort + "/").Execute<DtoActionResult>(
@@ -106,7 +107,7 @@ namespace Toec_Services.ApiCall
         public DtoActionResult SendServerResults(DtoPolicyResults results)
         {
             Request.Method = Method.POST;
-            Request.AddJsonBody(results);
+            Request.AddParameter("application/json", JsonConvert.SerializeObject(results), ParameterType.RequestBody);
             Request.Resource = string.Format("api/{0}/SendServerResults/", Resource);
             return
                 new ApiRequest("http://localhost:" + DtoGobalSettings.LocalApiPort + "/").Execute<DtoActionResult>(
@@ -115,7 +116,7 @@ namespace Toec_Services.ApiCall
         public DtoDownloadConnectionResult CreateDownloadConnection(DtoDownloadConRequest conRequest)
         {
             Request.Method = Method.POST;
-            Request.AddJsonBody(conRequest);
+            Request.AddParameter("application/json", JsonConvert.SerializeObject(conRequest), ParameterType.RequestBody);
             Request.Resource = string.Format("api/{0}/CreateDownloadConnection/", Resource);
             return
                 new ApiRequest("http://localhost:" + DtoGobalSettings.LocalApiPort + "/").Execute<DtoDownloadConnectionResult>(
@@ -125,7 +126,7 @@ namespace Toec_Services.ApiCall
         public DtoBoolResponse RemoveDownloadConnection(DtoDownloadConRequest conRequest)
         {
             Request.Method = Method.POST;
-            Request.AddJsonBody(conRequest);
+            Request.AddParameter("application/json", JsonConvert.SerializeObject(conRequest), ParameterType.RequestBody);
             Request.Resource = string.Format("api/{0}/RemoveDownloadConnection/", Resource);
             return
                 new ApiRequest("http://localhost:" + DtoGobalSettings.LocalApiPort + "/").Execute<DtoBoolResponse>(

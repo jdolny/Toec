@@ -52,7 +52,7 @@ namespace Toec_Services.ApiCall
         public DtoProvisionResponse ProvisionClient(DtoProvisionRequest provisionRequest)
         {
             Request.Method = Method.POST;
-            Request.AddJsonBody(provisionRequest);
+            Request.AddParameter("application/json", JsonConvert.SerializeObject(provisionRequest), ParameterType.RequestBody);
             Request.Resource = string.Format("{0}/ProvisionClient/", Resource);
             return new ApiRequest().ExecuteHMAC<DtoProvisionResponse>(Request, provisionRequest.Name);
         }
