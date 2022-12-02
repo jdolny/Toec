@@ -343,7 +343,7 @@ namespace Toec_Services.Policy
             ((Hierarchy) LogManager.GetRepository()).RaiseConfigurationChanged(
                 EventArgs.Empty);
 
-            if (_reboot || (singleModulePolicy != null && _policiesToRun.Policies.Any(x => x.WinPeModules.Any())))
+            if (_reboot || (singleModulePolicy != null && _policiesToRun.Policies.Any(x => x.WinPeModules.Any()) && _policyResults.First().PolicyResult == EnumPolicy.Result.Success))
             {
                 Logger.Info("Policy Initiated Reboot.  Rebooting Now.");
                 if (_trigger == EnumPolicy.Trigger.Login)

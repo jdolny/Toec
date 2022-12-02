@@ -35,15 +35,18 @@ namespace Toec_Services.Policy.Modules
             Logger.Info("Running WinPE Module: " + _module.DisplayName);
 
             var fi = new FileInfo(Environment.SpecialFolder.Windows.ToString());
-            var partition = Path.GetPathRoot(fi.FullName).Replace("\\", "");
-            
-            _module.Destination = Path.Combine(partition, "boot");
+            var destination = Path.GetPathRoot(fi.FullName);
+            var partition = destination.Replace("\\", "");
+
+
+            _module.Destination = Path.Combine(destination, "boot");
 
             if (!_fileSystemService.CreateDestinationDirectory(_module.Destination))
             {
                 _moduleResult.Success = false;
                 _moduleResult.ExitCode = "-1";
                 _moduleResult.ErrorMessage = "Could Not Create Destination Directory";
+                Logger.Error("Could Not Create Destination Directory");
                 return _moduleResult;
             }
 
@@ -70,12 +73,32 @@ namespace Toec_Services.Policy.Modules
                     _moduleResult.Success = false;
                     _moduleResult.ExitCode = "-1";
                     _moduleResult.ErrorMessage = "Could Not Copy File To Destination";
+                    Logger.Error("Could Not Copy File To Destination");
                     return _moduleResult;
                 }
 
             }
 
             var arch = Environment.Is64BitOperatingSystem ? "x64" : "x86";
+
+            if (!File.Exists(Path.Combine(_module.Destination,"boot.sdi")))
+            {
+                _moduleResult.Success = false;
+                _moduleResult.ExitCode = "-1";
+                _moduleResult.ErrorMessage = "Required file boot.sdi was not found.";
+                Logger.Error("Required file boot.sdi was not found.");
+                return _moduleResult;
+            }
+
+            if (!File.Exists(Path.Combine(_module.Destination, "WinPE10" + arch + ".wim")))
+            {
+                _moduleResult.Success = false;
+                _moduleResult.ExitCode = "-1";
+                _moduleResult.ErrorMessage = "Required file WinPE10" + arch + ".wim was not found.";
+                Logger.Error("Required file WinPE10" + arch + ".wim was not found.");
+                return _moduleResult;
+            }
+
             var pArgs = new DtoProcessArgs();
             pArgs.RunWith = "cmd.exe";
             pArgs.RunWithArgs = "/c ";
