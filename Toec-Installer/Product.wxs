@@ -31,7 +31,7 @@
                            TerminateProcess="0">
     </util:CloseApplication>
     <util:CloseApplication Id="CloseToecUI" Target="Toec-UI.exe" CloseMessage="no"
-                           RebootPrompt="no" TerminateProcess="0">
+                           RebootPrompt="no" TerminateProcess="1">
     </util:CloseApplication>
 
     <UI Id="UserInterface">
