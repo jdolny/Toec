@@ -216,7 +216,7 @@ namespace Toec_Services.Socket
                     TimeSpan systemUptime;
                     uptime.NextValue();
                     systemUptime = TimeSpan.FromSeconds(uptime.NextValue());
-                    var str = systemUptime.ToString();
+                    var str = systemUptime.ToString(@"d\ \D\a\y\s\ h\ \H\o\u\r\s\ m\ \M\i\n\u\t\e\s\ s\ \S\e\c\o\n\d\s");
                     new APICall().PolicyApi.UpdateLastSocketResult(new DtoStringResponse() { Value = str});
                 }
             }

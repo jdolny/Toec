@@ -205,23 +205,7 @@ namespace Toec_Services.Policy
         private void EveryXDays(DtoClientPolicy policy, EntityPolicyHistory history)
         {
             Logger.Debug(policy.Name + " Is Set To Run Every " + policy.SubFrequency + " Days.");
-            if (policy.ReRunExisting)
-            {
-                Logger.Debug("Policy Is Set ReRun On Previously Completed Computers.");
-                var hashHistory = _policyHistoryServices.GetLastPolicyRunFromHash(policy.Hash);
-                if (hashHistory == null)
-                {
-                    Logger.Debug("This Policy's Hash Was Not Found In The History.  Adding To Run List.");
-                    _policiesToRun.Add(policy);
-                    return;
-                }
-                else
-                {
-                    Logger.Debug("Policy Last Ran On " + hashHistory.LastRunTime);
-                    Logger.Debug("This Policy Has Already Ran With Forced ReRun.  Skipping");
-                    return;
-                }
-            }
+
             if (history == null)
             {
                 Logger.Debug("Policy Has Never Been Run.  Adding To Run List.");
@@ -248,23 +232,7 @@ namespace Toec_Services.Policy
         private void EveryXHours(DtoClientPolicy policy, EntityPolicyHistory history)
         {
             Logger.Debug(policy.Name + " Is Set To Run Every " + policy.SubFrequency + " Hours.");
-            if (policy.ReRunExisting)
-            {
-                Logger.Debug("Policy Is Set ReRun On Previously Completed Computers.");
-                var hashHistory = _policyHistoryServices.GetLastPolicyRunFromHash(policy.Hash);
-                if (hashHistory == null)
-                {
-                    Logger.Debug("This Policy's Hash Was Not Found In The History.  Adding To Run List.");
-                    _policiesToRun.Add(policy);
-                    return;
-                }
-                else
-                {
-                    Logger.Debug("Policy Last Ran On " + hashHistory.LastRunTime);
-                    Logger.Debug("This Policy Has Already Ran With Forced ReRun.  Skipping");
-                    return;
-                }
-            }
+
             if (history == null)
             {
                 Logger.Debug("Policy Has Never Been Run.  Adding To Run List.");
@@ -291,23 +259,7 @@ namespace Toec_Services.Policy
         private void OncePerDay(DtoClientPolicy policy, EntityPolicyHistory history)
         {
             Logger.Debug(policy.Name + " Is Set To Run Once Per Day.");
-            if (policy.ReRunExisting)
-            {
-                Logger.Debug("Policy Is Set ReRun On Previously Completed Computers.");
-                var hashHistory = _policyHistoryServices.GetLastPolicyRunFromHash(policy.Hash);
-                if (hashHistory == null)
-                {
-                    Logger.Debug("This Policy's Hash Was Not Found In The History.  Adding To Run List.");
-                    _policiesToRun.Add(policy);
-                    return;
-                }
-                else
-                {
-                    Logger.Debug("Policy Last Ran On " + hashHistory.LastRunTime);
-                    Logger.Debug("This Policy Has Already Ran With Forced ReRun.  Skipping");
-                    return;
-                }
-            }
+
             if (history == null)
             {
                 Logger.Debug("Policy Has Never Been Run.  Adding To Run List.");
@@ -336,36 +288,6 @@ namespace Toec_Services.Policy
             var lastDayOfMonth = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month);
             var currentDayOfMonth = DateTime.Now.Day;
 
-            if (policy.ReRunExisting)
-            {
-                Logger.Debug("Policy Is Set ReRun On Previously Completed Computers.");
-                var hashHistory = _policyHistoryServices.GetLastPolicyRunFromHash(policy.Hash);
-                if (hashHistory == null)
-                {
-                    Logger.Debug("This Policy's Hash Was Not Found In The History.");
-                    if (policy.FrequencyMissedAction == EnumPolicy.FrequencyMissedAction.NextOpportunity)
-                    {
-                        Logger.Debug("Policy Missed Action Is Next Opportunity.  Adding To Run List.");
-                        _policiesToRun.Add(policy);
-                    }
-                    else
-                    {
-                        Logger.Debug("Current Day: " + currentDayOfMonth);
-                        Logger.Debug("Policy Run Day: " + policy.SubFrequency);
-                        if (policy.SubFrequency == currentDayOfMonth ||
-                            (policy.SubFrequency == 31 && currentDayOfMonth == lastDayOfMonth))
-                        {
-                            Logger.Debug("Policy Run Day Matches Current Day.  Adding To Run List.");
-                            _policiesToRun.Add(policy);
-                        }
-                        else
-                        {
-                            Logger.Debug("Policy's Run Day And Current Day Do Not Match.  Skipping");
-                        }
-                    }
-                    return;
-                }
-            }
 
             if (history == null)
             {
@@ -432,36 +354,6 @@ namespace Toec_Services.Policy
             Logger.Debug(policy.Name + " Is Set To Run Once Per Week.");
             var currentDayOfWeek = (int) DateTime.Now.DayOfWeek;
 
-            if (policy.ReRunExisting)
-            {
-                Logger.Debug("Policy Is Set ReRun On Previously Completed Computers.");
-                var hashHistory = _policyHistoryServices.GetLastPolicyRunFromHash(policy.Hash);
-                if (hashHistory == null)
-                {
-                    Logger.Debug("This Policy's Hash Was Not Found In The History.");
-                    if (policy.FrequencyMissedAction == EnumPolicy.FrequencyMissedAction.NextOpportunity)
-                    {
-                        Logger.Debug("Policy Missed Action Is Set To Next Opportunity.  Adding To Run List.");
-                        _policiesToRun.Add(policy);
-                    }
-                    else
-                    {
-                        Logger.Debug("Current Day Of Week: " + currentDayOfWeek);
-                        Logger.Debug("Policy Run Day: " + policy.SubFrequency);
-                        if (policy.SubFrequency == currentDayOfWeek)
-                        {
-                            Logger.Debug("Policy Matches Current Run Day.  Adding To Run List.");
-                            _policiesToRun.Add(policy);
-                        }
-                        else
-                        {
-                            Logger.Debug("Policy's Run Day And Current Day Do Not Match.  Skipping");
-                        }
-                       
-                    }
-                    return;
-                }
-            }
 
             if (history == null)
             {
