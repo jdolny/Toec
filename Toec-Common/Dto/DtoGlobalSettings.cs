@@ -14,7 +14,7 @@ namespace Toec_Common.Dto
 
         public static string ClientVersion
         {
-            get { return "1.5.0.0"; }
+            get { return "1.5.4.0"; }
         }
 
         public static string ComServer { get; set; }
