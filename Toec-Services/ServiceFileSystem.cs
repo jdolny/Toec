@@ -119,13 +119,20 @@ namespace Toec_Services
 
         public string GetFileHash(string filePath)
         {
-            using (var md5 = MD5.Create())
+            try
             {
-                using (var stream = new BufferedStream(File.OpenRead(filePath), 1200000))
+                using (var md5 = MD5.Create())
                 {
-                    var hash = md5.ComputeHash(stream);
-                    return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                    using (var stream = new BufferedStream(File.OpenRead(filePath), 1200000))
+                    {
+                        var hash = md5.ComputeHash(stream);
+                        return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                    }
                 }
+            }
+            catch
+            {
+                return string.Empty;
             }
         }
     }
