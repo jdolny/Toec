@@ -94,6 +94,11 @@ namespace Toec_Services
             DtoGobalSettings.BaseCachePath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
             DtoGobalSettings.BaseCachePath = Path.Combine(DtoGobalSettings.BaseCachePath, "Toec", "AppData") +
                                              Path.DirectorySeparatorChar;
+            try
+            {
+                Directory.CreateDirectory(DtoGobalSettings.BaseCachePath);
+            }
+            catch { }
             DtoGobalSettings.ClientIdentity.Name = Dns.GetHostName();
             DtoGobalSettings.ClientIdentity.Guid = new ServiceSetting().GetSetting("computer_identifier").Value;
             DtoGobalSettings.ClientIdentity.InstallationId = new ServiceSetting().GetSetting("installation_id").Value;
