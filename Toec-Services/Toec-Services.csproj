@@ -107,6 +107,7 @@
     <Compile Include="InventorySearchers\WUAAvailable.cs" />
     <Compile Include="InventorySearchers\WUAInstalled.cs" />
     <Compile Include="Policy\Modules\ModuleCommandManager.cs" />
+    <Compile Include="Policy\Modules\ModuleWingetManager.cs" />
     <Compile Include="Policy\Modules\ModuleWinPe.cs" />
     <Compile Include="Policy\Modules\ModuleMessage.cs" />
     <Compile Include="Policy\Modules\ModuleFileCopy.cs" />
@@ -128,6 +129,8 @@
     <Compile Include="ServiceCertificate.cs" />
     <Compile Include="Crypto\ServiceDP.cs" />
     <Compile Include="ServiceDomain.cs" />
+    <Compile Include="ServiceDownloadConnectionManager.cs" />
+    <Compile Include="ServiceRunAs.cs" />
     <Compile Include="Socket\ServiceHubAction.cs" />
     <Compile Include="ServiceLogLevel.cs" />
     <Compile Include="ServicePortSelector.cs" />

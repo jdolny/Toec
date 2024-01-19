@@ -62,6 +62,7 @@
     <Compile Include="Dto\RemotelyConnectionInfo.cs" />
     <Compile Include="Entity\EntityAppMonitor.cs" />
     <Compile Include="Enum\EnumCondition.cs" />
+    <Compile Include="Enum\EnumWingetInstallType.cs" />
     <Compile Include="Inventory\DtoVideoControllerInventory.cs" />
     <Compile Include="Inventory\DtoComputerSystemProduct.cs" />
     <Compile Include="Inventory\DtoLogicalVolumeInventory.cs" />
@@ -74,6 +75,7 @@
     <Compile Include="Inventory\DtoCertificateInventory.cs" />
     <Compile Include="Inventory\DtoOsInventory.cs" />
     <Compile Include="Modules\DtoClientCommandModule.cs" />
+    <Compile Include="Modules\DtoClientWingetModule.cs" />
     <Compile Include="Modules\DtoClientWinPeModule.cs" />
     <Compile Include="Modules\DtoClientFileCopyModule.cs" />
     <Compile Include="Modules\DtoClientFileHash.cs" />

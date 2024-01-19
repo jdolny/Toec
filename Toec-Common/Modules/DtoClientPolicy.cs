@@ -16,10 +16,12 @@ namespace Toec_Common.Modules
             WuModules = new List<DtoClientWuModule>();
             MessageModules = new List<DtoClientMessageModule>();
             WinPeModules = new List<DtoClientWinPeModule>();
+            WingetModules = new List<DtoClientWingetModule>();
             SkipServerResult = false;
         }
 
         public List<DtoClientCommandModule> CommandModules { get; set; }
+        public List<DtoClientWingetModule> WingetModules { get; set; }
         public EnumPolicy.CompletedAction CompletedAction { get; set; }
         public EnumPolicy.ErrorAction ErrorAction { get; set; }
         public EnumPolicy.ExecutionType ExecutionType { get; set; }
@@ -52,5 +54,7 @@ namespace Toec_Common.Modules
         public EnumPolicy.WuType WuType { get; set; }
         public EnumCondition.FailedAction ConditionFailedAction { get; set; }
         public DtoClientModuleCondition Condition { get; set; }
+        public bool IsWingetUpdate { get; set; }
+        public bool WingetUseMaxConnections { get; set; }
     }
 }

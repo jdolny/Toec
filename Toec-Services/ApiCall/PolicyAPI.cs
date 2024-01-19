@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using log4net;
 using Newtonsoft.Json;
 using RestSharp;
 using Toec_Common.Dto;
+using Toec_Common.Modules;
 
 namespace Toec_Services.ApiCall
 {
@@ -124,6 +126,13 @@ namespace Toec_Services.ApiCall
             Request.Method = Method.GET;
             Request.Resource = string.Format("ProvisionedComm/{0}/GetDomainJoinCredentials/", Resource);
             return new ApiRequest().ExecuteSymKeyEncryption<DtoDomainJoinCredentials>(Request, string.Empty);
+        }
+
+        public List<DtoClientWingetModule> GetWingetModuleUpdates()
+        {
+            Request.Method = Method.GET;
+            Request.Resource = string.Format("ProvisionedComm/{0}/GetComputerWingetModules/", Resource);
+            return new ApiRequest().ExecuteSymKeyEncryption<List<DtoClientWingetModule>>(Request, string.Empty);
         }
 
         public bool AddToFirstRunGroup()

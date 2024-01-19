@@ -231,42 +231,9 @@ namespace Toec_Services.Policy
             if (_policiesToRun.Policies.Any(x =>
                 x.SoftwareModules.Any() || x.FileCopyModules.Any() || x.WinPeModules.Any() ||  x.WuModules.Any() || x.ScriptModules.Any() || x.CommandModules.Any()) || conditionNeedsCached || _policiesToRun.Policies.Any(x => x.Condition.Guid != null) || remotelyNeedsCached)
             {
-                //grab a download slot
-                Logger.Debug("Obtaining A Download Connection.");
-                var downloadConRequest = new DtoDownloadConRequest();
-                downloadConRequest.ComputerGuid = DtoGobalSettings.ClientIdentity.Guid;
-                downloadConRequest.ComputerName = DtoGobalSettings.ClientIdentity.Name;
-                downloadConRequest.ComServer = DtoGobalSettings.ComServer;
-
-                var downloadConnection = new DtoDownloadConnectionResult();
-                if (_trigger == EnumPolicy.Trigger.Login)
-                    downloadConnection  = new APICall().LocalApi.CreateDownloadConnection(downloadConRequest);
-                else
-                    downloadConnection = new APICall().PolicyApi.CreateDownloadConnection(downloadConRequest);
-                var conAttempCounter = 0;
-                while (downloadConnection.QueueIsFull || !downloadConnection.Success)
-                {
-                    if (!downloadConnection.Success)
-                    {
-                        Logger.Error("Could Not Obtain Download Connection. " + downloadConnection.ErrorMessage);
-                        DtoGobalSettings.PolicyIsRunning = false;
-                        return true;
-                    }
-                    if (downloadConnection.QueueIsFull && conAttempCounter == 0)
-                        Logger.Debug("Download Connections Are Full.  Will Retry Continuously Every 1 Minute For The Next 10 Minutes.");
-
-                    Task.Delay(60 * 1000).Wait();
-                    conAttempCounter++;
-                    if (conAttempCounter == 10)
-                    {
-                        Logger.Debug("Download Connections Remain Filled.  Giving Up.  Will Retry At Next Checkin.");
-                        return true;
-                    }
-                    if (_trigger == EnumPolicy.Trigger.Login)
-                        downloadConnection = new APICall().LocalApi.CreateDownloadConnection(downloadConRequest);
-                    else
-                        downloadConnection = new APICall().PolicyApi.CreateDownloadConnection(downloadConRequest);
-                }
+                var downloadConResult = new ServiceDownloadConnectionManager().CreateConnection(_trigger);
+                if (!downloadConResult)
+                    return true; //can't get download connection treat as if policy never ran
 
                 foreach (var policy in _policiesToRun.Policies)
                 {
@@ -288,11 +255,8 @@ namespace Toec_Services.Policy
                     }
                 }
                 //release the download slot
-                Logger.Debug("Releasing The Download Connection.");
-                if (_trigger == EnumPolicy.Trigger.Login)
-                    new APICall().LocalApi.RemoveDownloadConnection(downloadConRequest);
-                else
-                    new APICall().PolicyApi.RemoveDownloadConnection(downloadConRequest);
+                new ServiceDownloadConnectionManager().RemoveConnection(_trigger);
+
             }
 
             if (!cacheFailedWithTriggerStop)
@@ -307,7 +271,26 @@ namespace Toec_Services.Policy
                         continue;
                     }
 
-                    var policyResult = new PolicyExecutor(policy).Execute();
+                    var policyResult = new DtoPolicyResult();
+                    if (policy.WingetUseMaxConnections && (policy.WingetModules.Any() || policy.IsWingetUpdate))
+                    {
+                        Logger.Debug("A Winget module was found and the policy is enforcing Max connections.");
+                        if (!new ServiceDownloadConnectionManager().CreateConnection(_trigger))
+                        {
+                            policyResult.PolicyResult = EnumPolicy.Result.Failed;
+                        }
+                        else
+                        {
+                            policyResult = new PolicyExecutor(policy).Execute();
+                            new ServiceDownloadConnectionManager().RemoveConnection(_trigger);
+                        }
+                    }
+                    else
+                    {
+                        policyResult = new PolicyExecutor(policy).Execute();
+                    }
+                    
+
                     if (policy.SkipServerResult)
                         policyResult.SkipServerResult = true;
                     _policyResults.Add(policyResult);

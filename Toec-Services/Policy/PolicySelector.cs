@@ -513,6 +513,23 @@ namespace Toec_Services.Policy
                             return false;
                         }
                     }
+                    foreach (var module in policy.WingetModules)
+                    {
+                        if (string.IsNullOrEmpty(module.Guid))
+                            return false;
+                        if (string.IsNullOrEmpty(module.DisplayName))
+                            return false;
+                        if (string.IsNullOrEmpty(module.PackageId))
+                            return false;
+                        if (string.IsNullOrEmpty(module.PackageVersion) && !module.InstallLatest)
+                            return false;
+                        if (!int.TryParse(module.Order.ToString(), out value))
+                            return false;
+                        if (!int.TryParse(module.Timeout.ToString(), out value))
+                            return false;
+
+                    }
+
                     foreach (var module in policy.FileCopyModules)
                     {
                         if (string.IsNullOrEmpty(module.Destination))

@@ -296,12 +296,12 @@ namespace Toec_Services.Policy
                     var hash =
                         _fileSystemService.GetFileHash(Path.Combine(DtoGobalSettings.BaseCachePath, moduleGuid,
                             file.FileName));
+
                     if (hash.Equals(file.FileHash))
                     {
                         Logger.Debug("File Is Already Cached.  Skipping.");
                         continue;
                     }
-
                 }
 
                 var fileRequest = new DtoClientFileRequest();
