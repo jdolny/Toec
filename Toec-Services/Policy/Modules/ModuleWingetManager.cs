@@ -59,28 +59,26 @@ namespace Toec_Services.Policy.Modules
                 Logger.Info("No Winget Modules were found to update");
                 return;
             }
+
             foreach (var module in winGetModules.Where(x => x.InstallType == EnumWingetInstallType.WingetInstallType.Install && x.KeepUpdated))
             {
                 _module = module;
-                GetWingetCommand();
-
-                if (string.IsNullOrEmpty(_wingetFullPath))
+                Logger.Info("Attempting Upgrade For: " + module.Name);
+                if (!GetRunAsCredentials())
                 {
-                    InstallWinget();
-                    GetWingetCommand();
+                    Logger.Debug("Error while obtaining impersonation credentials");
+                    continue;
                 }
+                RunPrereqs();
+                GetWingetCommand();
+               
 
                 if (string.IsNullOrEmpty(_wingetFullPath))
                 {
                     Logger.Error("Could not find / install Winget, it must be installed manually.");
                     return;
                 }
-                Logger.Info("Attempting Upgrade For: " +  module.DisplayName);
-                if (!GetRunAsCredentials())
-                {
-                    Logger.Debug("Error while obtaining impersonation credentials");
-                    continue;
-                }
+              
 
                 if (!string.IsNullOrEmpty(module.RunAs))
                 {
@@ -101,7 +99,7 @@ namespace Toec_Services.Policy.Modules
 
                     var result = new RunasUser().RunCmdAsUser(_username, _password, _domain, cmd, timeout, 2, true);
 
-                    Logger.Info("Winget Module: " + module.DisplayName + " Finished, Exit code: " + result.ExitCode);
+                    Logger.Info("Winget Module: " + module.Name + " Finished, Exit code: " + result.ExitCode);
                 }
                 else
                 {
@@ -123,7 +121,7 @@ namespace Toec_Services.Policy.Modules
                     pArgs.RedirectOutput = module.RedirectOutput;
 
                     var result = new ServiceProcess(pArgs).RunProcess();
-                    Logger.Info("Winget Module: " + module.DisplayName + " Finished, Exit code: " + result.ExitCode);
+                    Logger.Info("Winget Module: " + module.Name + " Finished, Exit code: " + result.ExitCode);
                 }
 
             }
@@ -140,12 +138,10 @@ namespace Toec_Services.Policy.Modules
                 return _moduleResult;
             }
 
+            RunPrereqs();
+
             GetWingetCommand();
-            if (string.IsNullOrEmpty(_wingetFullPath))
-            {
-                InstallWinget();
-                GetWingetCommand();
-            }
+            
             
             if (string.IsNullOrEmpty(_wingetFullPath))
             {
@@ -159,6 +155,7 @@ namespace Toec_Services.Policy.Modules
                 //when running as a user and the service is running as system, winget must be called from powershell and not directly
                 //or there will be an access error
                 var cmd = _powershellFullPath + " " + _wingetFullPath;
+
                 if (_module.InstallType == EnumWingetInstallType.WingetInstallType.Install)
                 {
                     cmd += $" install -e --id {_module.PackageId} -h --accept-source-agreements --accept-package-agreements --scope machine --force {_module.Arguments}";
@@ -221,6 +218,16 @@ namespace Toec_Services.Policy.Modules
             return _moduleResult;
         }
 
+        private void SetPowershellRunAsPath()
+        {
+            var powershellPath = new RunasUser().RunCmdAsUser(_username, _password, _domain, "where powershell.exe", 10000, 2, true);
+            if (powershellPath.ExitCode != 0)
+            {
+                Logger.Debug("Could not find powershell path, cannot continue");
+                return;
+            }
+            _powershellFullPath = powershellPath.Output;
+        }
         public void GetWingetCommand()
         {
             Logger.Debug("Locating Winget");
@@ -255,14 +262,6 @@ namespace Toec_Services.Policy.Modules
                     Logger.Debug("Impersonation accounts used with winget must have Admin privileges");
                     return;
                 }
-
-                var powershellPath = new RunasUser().RunCmdAsUser(_username, _password, _domain, "where powershell.exe", 10000, 2, true);
-                if (powershellPath.ExitCode != 0)
-                {
-                    Logger.Debug("Could not find powershell path, cannot continue");
-                    return;
-                }
-                _powershellFullPath = powershellPath.Output;
 
                 var versionResult = new RunasUser().RunCmdAsUser(_username, _password, _domain, $"{_powershellFullPath} {wingetPath.Output} --version", 10000,2,true);
                 if (versionResult.ExitCode == 0)
@@ -306,66 +305,36 @@ namespace Toec_Services.Policy.Modules
                 }
             }
         }
-
-        private void InstallWinget()
+        private void RunPrereqs()
         {
-            if (_notAdminError) return;
-            Logger.Debug("Installing Winget");
-            var request = new RestRequest();
-            request.Method = Method.GET;
-            var client = new RestClient();
-            client.BaseUrl = new Uri("https://github.com");
-            request.Resource = "/microsoft/winget-cli/releases/latest/download/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle";
-            var destination = string.Empty;
-            if(_trigger == EnumPolicy.Trigger.Login)
-                destination = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),"winget.msix");
-            else
-                destination = Path.Combine(DtoGobalSettings.BaseCachePath, "winget.msix");
             try
             {
-                using (var stream = File.Create(destination, 4096))
-                {
-                    request.ResponseWriter = (responseStream) => responseStream.CopyTo(stream);
-                    client.DownloadData(request);
-                    if (stream.Length == 0)
-                    {
-                        Logger.Debug($"Could not download winget from {client.BaseUrl}{request.Resource}");
-                        //something went wrong, rest sharp can't display any other info with downloaddata, so we don't know why
-                        return;
-
-                    }
-                }
-
+                File.WriteAllText(DtoGobalSettings.BaseCachePath + "Winget.ps1", GetScriptContents());
             }
-            catch (Exception ex)
+            catch(Exception ex) 
             {
-                Logger.Error("Could Not Save File: " + destination);
-                Logger.Error(ex.Message);
-                return;
+                Logger.Error("Could not run winget prereqs");
+                Logger.Error(ex.ToString());
             }
 
-            if(!string.IsNullOrEmpty(_module.RunAs))
+            if (!string.IsNullOrEmpty(_module.RunAs))
             {
-               
-                var installResult = new RunasUser().RunCmdAsUser(_username, _password, _domain, $"{_powershellFullPath} -ExecutionPolicy Bypass -NoProfile Add-AppxPackage -Path '{destination}' ", 5 * 60000,2,true);
-                var installSourceResult = new RunasUser().RunCmdAsUser(_username, _password, _domain, $"{_powershellFullPath} -ExecutionPolicy Bypass -NoProfile Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.Winget.Source_8wekyb3d8bbwe ", 5 * 60000,2,true);
+                new RunasUser().RunCmdAsUser(_username, _password, _domain, $"{_powershellFullPath} -ExecutionPolicy Bypass -File \"{DtoGobalSettings.BaseCachePath}Winget.ps1\"", 5 * 60000, 2, true);
             }
             else
             {
+                Logger.Debug("Installing Prereqs");
                 var pArgs = new DtoProcessArgs();
                 pArgs.RunWith = "powershell.exe";
-                pArgs.RunWithArgs = $" -ExecutionPolicy Bypass -NoProfile Add-AppxProvisionedPackage -Online -PackagePath '{destination}' -SkipLicense ";
+                pArgs.RunWithArgs = $" -ExecutionPolicy Bypass -NoProfile -File \"{DtoGobalSettings.BaseCachePath}Winget.ps1\"";
                 pArgs.RedirectError = true;
                 pArgs.RedirectOutput = true;
                 var result = new ServiceProcess(pArgs).RunProcess();
-                if(result.ExitCode != 0)
+                if (result.ExitCode != 0)
                 {
-                    Logger.Debug("Winget installation failed");
+                    Logger.Debug("prereqs installation failed");
                     Logger.Debug(result.StandardError);
                 }
-
-                pArgs.RunWithArgs = $" -ExecutionPolicy Bypass -NoProfile Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.Winget.Source_8wekyb3d8bbwe ";
-                new ServiceProcess(pArgs).RunProcess();
             }
         }
 
@@ -396,9 +365,200 @@ namespace Toec_Services.Policy.Modules
                 {
                     _username = credentials.Username;
                     _password = credentials.Password;
+                    SetPowershellRunAsPath();
                 }
             }
             return true;
+        }
+        private string GetScriptContents()
+        {
+            return @"
+<#
+MIT License
+
+Copyright (c) 2022 Romanitho
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the ""Software""), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED ""AS IS"", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+#>
+
+
+function Write-ToLog ($LogMsg, $LogColor = ""White"") {
+    $Log = ""$(Get-Date -UFormat ""%T"") - $LogMsg""
+    $Log | Write-host -ForegroundColor $LogColor
+}
+
+function Get-WingetCmd {
+
+    $WingetCmd = $null
+
+    #Get WinGet Path
+    try {
+        #Get Admin Context Winget Location
+        $WingetInfo = (Get-Item ""$env:ProgramFiles\WindowsApps\Microsoft.DesktopAppInstaller_*_8wekyb3d8bbwe\winget.exe"").VersionInfo | Sort-Object -Property FileVersionRaw
+        #If multiple versions, pick most recent one
+        $WingetCmd = $WingetInfo[-1].FileName
+    }
+    catch {
+        #Get User context Winget Location
+        if (Test-Path ""$env:LocalAppData\Microsoft\WindowsApps\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\winget.exe"") {
+            $WingetCmd = ""$env:LocalAppData\Microsoft\WindowsApps\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\winget.exe""
+        }
+    }
+
+    return $WingetCmd
+}
+
+
+function Install-Prerequisites {
+
+    Write-ToLog ""Checking prerequisites..."" ""Cyan""
+
+    #Check if Visual C++ 2019 or 2022 installed
+    $Visual2019 = ""Microsoft Visual C++ 2015-2019 Redistributable*""
+    $Visual2022 = ""Microsoft Visual C++ 2015-2022 Redistributable*""
+    $path = Get-Item HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*, HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object { $_.GetValue(""DisplayName"") -like $Visual2019 -or $_.GetValue(""DisplayName"") -like $Visual2022 }
+
+    #If not installed, download and install
+    if (!($path)) {
+
+        Write-ToLog ""Microsoft Visual C++ 2015-2022 is not installed."" ""Red""
+
+        try {
+            #Get proc architecture
+            if ($env:PROCESSOR_ARCHITECTURE -eq ""ARM64"") {
+                $OSArch = ""arm64""
+            }
+            elseif ($env:PROCESSOR_ARCHITECTURE -like ""*64*"") {
+                $OSArch = ""x64""
+            }
+            else {
+                $OSArch = ""x86""
+            }
+
+            #Download and install
+            $SourceURL = ""https://aka.ms/vs/17/release/VC_redist.$OSArch.exe""
+            $Installer = ""$env:TEMP\VC_redist.$OSArch.exe""
+            Write-ToLog ""-> Downloading $SourceURL...""
+            Invoke-WebRequest $SourceURL -UseBasicParsing -OutFile $Installer
+            Write-ToLog ""-> Installing VC_redist.$OSArch.exe...""
+            Start-Process -FilePath $Installer -Args ""/passive /norestart"" -Wait
+            Start-Sleep 3
+            Remove-Item $Installer -ErrorAction Ignore
+            Write-ToLog ""-> MS Visual C++ 2015-2022 installed successfully."" ""Green""
+        }
+        catch {
+            Write-ToLog ""-> MS Visual C++ 2015-2022 installation failed."" ""Red""
+        }
+
+    }
+
+    #Check if Microsoft.VCLibs.140.00.UWPDesktop is installed
+    if (!(Get-AppxPackage -Name 'Microsoft.VCLibs.140.00.UWPDesktop' -AllUsers)) {
+        Write-ToLog ""Microsoft.VCLibs.140.00.UWPDesktop is not installed"" ""Red""
+        $VCLibsUrl = ""https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx""
+        $VCLibsFile = ""$env:TEMP\Microsoft.VCLibs.x64.14.00.Desktop.appx""
+        Write-ToLog ""-> Downloading $VCLibsUrl...""
+        Invoke-RestMethod -Uri $VCLibsUrl -OutFile $VCLibsFile
+        try {
+            Write-ToLog ""-> Installing Microsoft.VCLibs.140.00.UWPDesktop...""
+            Add-AppxProvisionedPackage -Online -PackagePath $VCLibsFile -SkipLicense | Out-Null
+            Write-ToLog ""-> Microsoft.VCLibs.140.00.UWPDesktop installed successfully."" ""Green""
+        }
+        catch {
+            Write-ToLog ""-> Failed to intall Microsoft.VCLibs.140.00.UWPDesktop..."" ""Red""
+        }
+        Remove-Item -Path $VCLibsFile -Force
+    }
+
+    #Check available WinGet version, if fail set version to the latest version as of 2023-10-08
+    $WingetURL = 'https://api.github.com/repos/microsoft/winget-cli/releases/latest'
+    try {
+        $WinGetAvailableVersion = ((Invoke-WebRequest $WingetURL -UseBasicParsing | ConvertFrom-Json)[0].tag_name).Replace(""v"", """")
+    }
+    catch {
+        $WinGetAvailableVersion = ""1.6.2771""
+    }
+
+    #Get installed Winget version
+    try {
+        $WingetInstalledVersionCmd = & $Winget -v
+        $WinGetInstalledVersion = (($WingetInstalledVersionCmd).Replace(""-preview"", """")).Replace(""v"", """")
+        Write-ToLog ""Installed Winget version: $WingetInstalledVersionCmd""
+    }
+    catch {
+        Write-ToLog ""WinGet is not installed"" ""Red""
+    }
+
+    #Check if the available WinGet is newer than the installed
+    if ($WinGetAvailableVersion -gt $WinGetInstalledVersion) {
+
+        Write-ToLog ""-> Downloading Winget v$WinGetAvailableVersion""
+        $WingetURL = ""https://github.com/microsoft/winget-cli/releases/download/v$WinGetAvailableVersion/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle""
+        $WingetInstaller = ""$env:TEMP\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle""
+        Invoke-RestMethod -Uri $WingetURL -OutFile $WingetInstaller
+        try {
+            Write-ToLog ""-> Installing Winget v$WinGetAvailableVersion""
+            Add-AppxProvisionedPackage -Online -PackagePath $WingetInstaller -SkipLicense | Out-Null
+            Write-ToLog ""-> Winget installed."" ""Green""
+        }
+        catch {
+            Write-ToLog ""-> Failed to install Winget!"" ""Red""
+        }
+        Remove-Item -Path $WingetInstaller -Force
+    }
+
+    Write-ToLog ""Checking prerequisites ended.`n"" ""Cyan""
+
+}
+
+#If running as a 32-bit process on an x64 system, re-launch as a 64-bit process
+if (""$env:PROCESSOR_ARCHITEW6432"" -ne ""ARM64"") {
+    if (Test-Path ""$($env:WINDIR)\SysNative\WindowsPowerShell\v1.0\powershell.exe"") {
+        Start-Process ""$($env:WINDIR)\SysNative\WindowsPowerShell\v1.0\powershell.exe"" -Wait -ArgumentList ""-NoProfile -ExecutionPolicy Bypass -Command $($MyInvocation.line)""
+        Exit $lastexitcode
+    }
+}
+
+#Config console output encoding
+$null = cmd /c '' #Tip for ISE
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$Script:ProgressPreference = 'SilentlyContinue'
+
+#Check if current process is elevated (System or admin user)
+$CurrentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+$Script:IsElevated = $CurrentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
+
+#Get Winget command
+$Script:Winget = Get-WingetCmd
+
+if ($IsElevated -eq $True) {
+    Write-ToLog ""Running with admin rights.`n ""
+    #Check/install prerequisites
+    Install-Prerequisites
+    #Reload Winget command
+    $Script:Winget = Get-WingetCmd
+}
+else {
+    Write-ToLog ""Running without admin rights.`n ""
+}
+";
         }
     }
 }

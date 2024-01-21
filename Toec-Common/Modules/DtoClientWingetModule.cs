@@ -12,6 +12,7 @@ namespace Toec_Common.Modules
     {
         public string Guid { get; set; }
         public string DisplayName { get; set; }
+        public string Name { get; set; }
         public string PackageId { get; set; }
         public string PackageVersion { get; set; }
         public string Arguments { get; set; }
