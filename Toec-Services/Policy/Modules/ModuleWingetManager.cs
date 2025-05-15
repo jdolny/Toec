@@ -27,11 +27,7 @@ namespace Toec_Services.Policy.Modules
         private readonly EnumPolicy.Trigger _trigger;
         private readonly string[] _successCodes = { "0" };
         private string _wingetFullPath;
-        private string _powershellFullPath;
-        private string _username;
-        private string _password;
-        private string _domain;
-        private bool _notAdminError = false;
+ 
 
         public ModuleWingetManager(DtoClientWingetModule module, EnumPolicy.Trigger policyTrigger)
         {
@@ -64,11 +60,7 @@ namespace Toec_Services.Policy.Modules
             {
                 _module = module;
                 Logger.Info("Attempting Upgrade For: " + module.Name);
-                if (!GetRunAsCredentials())
-                {
-                    Logger.Debug("Error while obtaining impersonation credentials");
-                    continue;
-                }
+
                 RunPrereqs();
                 GetWingetCommand();
                
@@ -82,9 +74,7 @@ namespace Toec_Services.Policy.Modules
 
                 if (!string.IsNullOrEmpty(module.RunAs))
                 {
-                    //when running as a user and the service is running as system, winget must be called from powershell and not directly
-                    //or there will be an access error
-                    var cmd = _powershellFullPath + " " + _wingetFullPath;
+                    var cmd = "winget";
 
                     cmd += $" upgrade -e --id {module.PackageId} -h --accept-source-agreements --accept-package-agreements --scope machine --force {module.Arguments}";
 
@@ -97,9 +87,25 @@ namespace Toec_Services.Policy.Modules
                         timeout = (uint)module.Timeout * 60000; //convert minutes to milliseconds
                     Logger.Debug($"Running Winget command: {cmd}");
 
-                    var result = new RunasUser().RunCmdAsUser(_username, _password, _domain, cmd, timeout, 2, true);
+                    var iTask = new ServiceImpersonationTask();
+                    iTask.Command = "powershell";
+                    iTask.Arguments = cmd;
+                    iTask.ExecutionTimeout = _module.Timeout;
+                    iTask.ModuleGuid = _module.Guid;
+                    iTask.ImpersonationGuid = _module.RunAs;
 
-                    Logger.Info("Winget Module: " + module.Name + " Finished, Exit code: " + result.ExitCode);
+                    var result = iTask.RunTask();
+                    Logger.Info(JsonConvert.SerializeObject(result));
+                    Logger.Info("Winget Module: " + _module.DisplayName + " Finished");
+                    _moduleResult.ExitCode = result.ToString();
+                    if (result != 0)
+                    {
+                        _moduleResult.Success = false;
+                        if (result == 259)
+                            _moduleResult.ErrorMessage = "Task Timed Out.";
+                        else
+                            _moduleResult.ErrorMessage = "Impersonation Task Failed.  See Log For Details.";
+                    }
                 }
                 else
                 {
@@ -131,13 +137,6 @@ namespace Toec_Services.Policy.Modules
         {
             Logger.Info("Running Winget Module: " + _module.DisplayName);
 
-            if(!GetRunAsCredentials())
-            {
-                _moduleResult.ErrorMessage = "Error while obtaining impersonation credentials";
-                _moduleResult.Success = false;
-                return _moduleResult;
-            }
-
             RunPrereqs();
 
             GetWingetCommand();
@@ -152,9 +151,7 @@ namespace Toec_Services.Policy.Modules
 
             if (!string.IsNullOrEmpty(_module.RunAs))
             {
-                //when running as a user and the service is running as system, winget must be called from powershell and not directly
-                //or there will be an access error
-                var cmd = _powershellFullPath + " " + _wingetFullPath;
+                var cmd = "winget";
 
                 if (_module.InstallType == EnumWingetInstallType.WingetInstallType.Install)
                 {
@@ -172,14 +169,25 @@ namespace Toec_Services.Policy.Modules
                     timeout = (uint)_module.Timeout * 60000; //convert minutes to milliseconds
                 Logger.Debug($"Running Winget command: {cmd}");
 
-                var result = new RunasUser().RunCmdAsUser(_username, _password, _domain, cmd, timeout,2,true);
 
+                var iTask = new ServiceImpersonationTask();
+                iTask.Command = "powershell";
+                iTask.Arguments = cmd;
+                iTask.ExecutionTimeout = _module.Timeout;
+                iTask.ModuleGuid = _module.Guid;
+                iTask.ImpersonationGuid = _module.RunAs;
+
+                var result = iTask.RunTask();
+                Logger.Info(JsonConvert.SerializeObject(result));
                 Logger.Info("Winget Module: " + _module.DisplayName + " Finished");
-                _moduleResult.ExitCode = result.ExitCode.ToString();
-                if (result.ExitCode != 0)
+                _moduleResult.ExitCode = result.ToString();
+                if (result != 0)
                 {
                     _moduleResult.Success = false;
-                    _moduleResult.ErrorMessage = result.Output;
+                    if (result == 259)
+                        _moduleResult.ErrorMessage = "Task Timed Out.";
+                    else
+                        _moduleResult.ErrorMessage = "Impersonation Task Failed.  See Log For Details.";
                 }
             }
             else
@@ -218,20 +226,10 @@ namespace Toec_Services.Policy.Modules
             return _moduleResult;
         }
 
-        private void SetPowershellRunAsPath()
-        {
-            var powershellPath = new RunasUser().RunCmdAsUser(_username, _password, _domain, "where powershell.exe", 10000, 2, true);
-            if (powershellPath.ExitCode != 0)
-            {
-                Logger.Debug("Could not find powershell path, cannot continue");
-                return;
-            }
-            _powershellFullPath = powershellPath.Output;
-        }
         public void GetWingetCommand()
         {
             Logger.Debug("Locating Winget");
-            if (_notAdminError) return;
+
             if(_trigger == EnumPolicy.Trigger.Login)
             {
                 var pArgs = new DtoProcessArgs();
@@ -250,25 +248,6 @@ namespace Toec_Services.Policy.Modules
                 {
                     _wingetFullPath = "winget.exe";
                     Logger.Debug("Found Winget version: " + result.StandardOut);
-                }
-            }
-            else if (!string.IsNullOrEmpty(_module.RunAs))
-            {
-                //winget modules run as a user must have admin rights, check for rights first
-                var wingetPath = new RunasUser().RunCmdAsUser(_username, _password, _domain, "where winget.exe", 10000, 2, true);
-                if (wingetPath.Output.Contains("[admin-error]"))
-                {
-                    _notAdminError = true;
-                    Logger.Debug("Impersonation accounts used with winget must have Admin privileges");
-                    return;
-                }
-
-                var versionResult = new RunasUser().RunCmdAsUser(_username, _password, _domain, $"{_powershellFullPath} {wingetPath.Output} --version", 10000,2,true);
-                if (versionResult.ExitCode == 0)
-                {
-                   _wingetFullPath = wingetPath.Output;
-                    Logger.Debug("Found Winget version: " + versionResult.Output);
-                    return;
                 }
             }
             else
@@ -307,6 +286,7 @@ namespace Toec_Services.Policy.Modules
         }
         private void RunPrereqs()
         {
+            Logger.Debug("Checking WinGet Prereqs");
             try
             {
                 File.WriteAllText(DtoGobalSettings.BaseCachePath + "Winget.ps1", GetScriptContents());
@@ -319,11 +299,30 @@ namespace Toec_Services.Policy.Modules
 
             if (!string.IsNullOrEmpty(_module.RunAs))
             {
-                new RunasUser().RunCmdAsUser(_username, _password, _domain, $"{_powershellFullPath} -ExecutionPolicy Bypass -File \"{DtoGobalSettings.BaseCachePath}Winget.ps1\"", 5 * 60000, 2, true);
+                var runWith = "Powershell.exe";
+                var runWithArgs = " -ExecutionPolicy Bypass -File ";
+
+                var iTask = new ServiceImpersonationTask();
+                iTask.Command = runWith;
+                iTask.Arguments = runWithArgs + $"\"{DtoGobalSettings.BaseCachePath}Winget.ps1\"";
+                iTask.ExecutionTimeout = _module.Timeout;
+                iTask.ModuleGuid = _module.Guid + "-wingetpre";
+                iTask.ImpersonationGuid = _module.RunAs;
+
+                var result = iTask.RunTask();
+                Logger.Info(JsonConvert.SerializeObject(result));
+                
+                
+                if (result != 0)
+                {
+                    Logger.Debug("prereqs installation failed");
+                    if (result == 259)
+                        Logger.Debug("Task Timed Out.");
+                }
             }
             else
             {
-                Logger.Debug("Installing Prereqs");
+               
                 var pArgs = new DtoProcessArgs();
                 pArgs.RunWith = "powershell.exe";
                 pArgs.RunWithArgs = $" -ExecutionPolicy Bypass -NoProfile -File \"{DtoGobalSettings.BaseCachePath}Winget.ps1\"";
@@ -338,38 +337,6 @@ namespace Toec_Services.Policy.Modules
             }
         }
 
-        private bool GetRunAsCredentials()
-        {
-            if (!string.IsNullOrEmpty(_module.RunAs))
-            {
-                var credentials = new ApiCall.APICall().PolicyApi.GetImpersonationAccount(_module.RunAs);
-                if (credentials == null)
-                {
-                    Logger.Debug("Could Not Obtain Credentials For Impersonation Account " + _module.RunAs);
-                    return false;
-                }
-                _domain = string.Empty;
-                if (credentials.Username.Contains("\\"))
-                {
-                    var tmp = credentials.Username.Split('\\');
-                    if (tmp.Length != 2)
-                    {
-                        Logger.Debug("Could Not Parse Username " + _module.RunAs);
-                        return false;
-                    }
-                    _domain = tmp[0];
-                    _username = tmp[1];
-                    _password = credentials.Password;
-                }
-                else
-                {
-                    _username = credentials.Username;
-                    _password = credentials.Password;
-                    SetPowershellRunAsPath();
-                }
-            }
-            return true;
-        }
         private string GetScriptContents()
         {
             return @"

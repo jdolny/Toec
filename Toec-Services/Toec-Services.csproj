@@ -130,7 +130,6 @@
     <Compile Include="Crypto\ServiceDP.cs" />
     <Compile Include="ServiceDomain.cs" />
     <Compile Include="ServiceDownloadConnectionManager.cs" />
-    <Compile Include="ServiceRunAs.cs" />
     <Compile Include="Socket\ServiceHubAction.cs" />
     <Compile Include="ServiceLogLevel.cs" />
     <Compile Include="ServicePortSelector.cs" />

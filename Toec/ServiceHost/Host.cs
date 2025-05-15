@@ -17,7 +17,6 @@ namespace Toec.ServiceHost
         private static Thread _serviceStartThread;
         private static Thread _serviceStopThread;
         private IDisposable _localServer;
-        private IDisposable _remoteServer;
 
         public Host()
         {
@@ -32,11 +31,18 @@ namespace Toec.ServiceHost
             var startupResult = new ServiceInitialize().OnStartTasks();
             if (startupResult)
             {
-                if (!string.IsNullOrEmpty(DtoGobalSettings.LocalApiPort))
-                    _localServer =
-                        WebApp.Start<Toec_LocalApi.Startup>("http://localhost:" + DtoGobalSettings.LocalApiPort);
-                else
-                    Logger.Info("Local API Calls To This Device Have Been Disabled.  Port Is Not Defined.");
+                try
+                {
+                    if (!string.IsNullOrEmpty(DtoGobalSettings.LocalApiPort))
+                        _localServer =
+                            WebApp.Start<Toec_LocalApi.Startup>("http://localhost:" + DtoGobalSettings.LocalApiPort);
+                    else
+                        Logger.Info("Local API Calls To This Device Have Been Disabled.  Port Is Not Defined.");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error("Error Starting Local API", ex);
+                }
                 new ServiceTriggerAction().Startup();
             }
         }
@@ -69,10 +75,6 @@ namespace Toec.ServiceHost
             Logger.Debug("Service Is Stopping.");
             _serviceStopThread.Start();
           
-            if (_remoteServer != null)
-            {
-                _remoteServer.Dispose();
-            }
             if (_localServer != null)
             {
                 _localServer.Dispose();
